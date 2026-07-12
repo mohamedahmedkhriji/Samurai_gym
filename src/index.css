@@ -1185,12 +1185,12 @@ img {
 
 .progress-wrap {
   position: fixed;
-  left: 1.35rem;
-  bottom: 1.35rem;
+  right: 1.45rem;
+  bottom: 1.45rem;
   z-index: 70;
   display: grid;
-  width: 3.2rem;
-  height: 3.2rem;
+  width: 3.75rem;
+  height: 3.75rem;
   place-items: center;
   border: 1px solid rgba(212, 175, 55, 0.22);
   border-radius: 50%;
@@ -1244,7 +1244,7 @@ img {
   position: relative;
   z-index: 1;
   color: #ffffff;
-  font-size: 1.1rem;
+  font-size: 1.28rem;
   font-weight: 900;
   line-height: 1;
 }
