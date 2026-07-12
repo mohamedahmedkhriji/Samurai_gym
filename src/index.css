@@ -980,6 +980,10 @@ img {
   grid-column: span 3;
 }
 
+.contact-grid {
+  align-items: stretch;
+}
+
 .contact-panel {
   border-radius: 1.7rem;
   padding: 1.5rem;
@@ -1033,7 +1037,8 @@ img {
 
 .map-frame {
   width: 100%;
-  min-height: 32rem;
+  height: 100%;
+  min-height: 100%;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1.7rem;
   filter: grayscale(1) invert(0.92) contrast(0.9);
@@ -1170,6 +1175,10 @@ img {
   .gallery-item {
     grid-column: span 1;
     grid-row: span 1;
+  }
+
+  .map-frame {
+    min-height: 28rem;
   }
 }
 
