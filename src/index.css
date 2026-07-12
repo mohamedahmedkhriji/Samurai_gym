@@ -247,7 +247,7 @@ img {
 
 .hero-section {
   position: relative;
-  min-height: 100svh;
+  min-height: 90svh;
   overflow: hidden;
   background: #080808;
 }
@@ -256,6 +256,7 @@ img {
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 1;
   background:
     linear-gradient(112deg, transparent 0 45%, rgba(225, 6, 0, 0.25) 46%, transparent 48%),
     linear-gradient(102deg, transparent 0 67%, rgba(255, 255, 255, 0.08) 68%, transparent 70%);
@@ -269,7 +270,7 @@ img {
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(90deg, rgba(8, 8, 8, 0.94) 0%, rgba(8, 8, 8, 0.62) 52%, rgba(8, 8, 8, 0.88) 100%),
+    linear-gradient(90deg, rgba(8, 8, 8, 0.78) 0%, rgba(8, 8, 8, 0.52) 52%, rgba(8, 8, 8, 0.72) 100%),
     radial-gradient(circle at 72% 30%, rgba(225, 6, 0, 0.16), transparent 35rem);
   pointer-events: none;
 }
@@ -288,8 +289,8 @@ img {
 .hero-grid {
   position: relative;
   z-index: 2;
-  min-height: 100svh;
-  padding-bottom: 4rem;
+  min-height: 90svh;
+  padding-bottom: 1.5rem;
 }
 
 .hero-title {
@@ -455,10 +456,108 @@ img {
 
 .quote-band {
   position: relative;
-  margin: -2rem auto 0;
+  margin: 2rem auto 0;
   max-width: 86rem;
   padding: 0 1.25rem;
   z-index: 5;
+}
+
+.logo-strip {
+  position: relative;
+  z-index: 5;
+  overflow: hidden;
+  min-height: 9.5rem;
+  display: flex;
+  align-items: center;
+  border-block: 1px solid rgba(212, 175, 55, 0.16);
+  background: transparent;
+  box-shadow: inset 0 1px 0 rgba(212, 175, 55, 0.08), inset 0 -1px 0 rgba(212, 175, 55, 0.08);
+  padding: 1.25rem 0;
+}
+
+.logo-strip::before,
+.logo-strip::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: min(18vw, 14rem);
+  pointer-events: none;
+}
+
+.logo-strip::before {
+  left: 0;
+  background: linear-gradient(90deg, #080808, rgba(8, 8, 8, 0.7), transparent);
+}
+
+.logo-strip::after {
+  right: 0;
+  background: linear-gradient(270deg, #080808, rgba(8, 8, 8, 0.7), transparent);
+}
+
+.marquee-wrap {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  min-width: 200%;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2.2rem, 4.5vw, 5rem);
+  animation: logoMarquee 46s linear infinite;
+}
+
+.logo-strip:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.brand-single-box {
+  display: grid;
+  width: clamp(10rem, 16vw, 15rem);
+  height: clamp(7rem, 9vw, 8.75rem);
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.65rem;
+  transition: opacity 180ms ease, transform 180ms ease, filter 180ms ease;
+}
+
+.brand-single-box:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.brand-single-box img {
+  width: 100%;
+  height: 100%;
+  max-width: 96%;
+  max-height: 90%;
+  object-fit: contain;
+  object-position: center center;
+  opacity: 0.72;
+  filter:
+    grayscale(1)
+    contrast(1.08)
+    brightness(1.45)
+    sepia(0.16)
+    drop-shadow(0 10px 22px rgba(0, 0, 0, 0.42));
+  mix-blend-mode: screen;
+  transition: opacity 180ms ease, filter 180ms ease;
+}
+
+.brand-single-box:hover img {
+  opacity: 1;
+  filter:
+    grayscale(0.1)
+    contrast(1.12)
+    brightness(1.2)
+    drop-shadow(0 0 18px rgba(212, 175, 55, 0.24));
 }
 
 .quote-band p {
@@ -1084,6 +1183,72 @@ img {
   object-fit: contain;
 }
 
+.progress-wrap {
+  position: fixed;
+  left: 1.35rem;
+  bottom: 1.35rem;
+  z-index: 70;
+  display: grid;
+  width: 3.2rem;
+  height: 3.2rem;
+  place-items: center;
+  border: 1px solid rgba(212, 175, 55, 0.22);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(225, 6, 0, 0.16), transparent 58%),
+    rgba(8, 8, 8, 0.78);
+  color: #f8d86b;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(0.75rem) scale(0.92);
+  pointer-events: none;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.35), 0 0 26px rgba(225, 6, 0, 0.12);
+  backdrop-filter: blur(12px);
+  transition: opacity 180ms ease, transform 180ms ease, border-color 180ms ease;
+}
+
+.progress-wrap.active-progress {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.progress-wrap:hover {
+  border-color: rgba(248, 216, 107, 0.7);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.progress-circle {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.progress-circle path {
+  fill: none;
+  stroke: url('#progress-gradient');
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 10ms linear;
+}
+
+.progress-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0.36rem;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.progress-wrap span {
+  position: relative;
+  z-index: 1;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
 @keyframes drift {
   to {
     transform: translate3d(2rem, -1.6rem, 0) scale(1.08);
@@ -1121,6 +1286,16 @@ img {
   }
 }
 
+@keyframes logoMarquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @keyframes coachImageReveal {
   from {
     opacity: 0;
@@ -1150,6 +1325,11 @@ img {
 }
 
 @media (max-width: 900px) {
+  .hero-section,
+  .hero-grid {
+    min-height: 92svh;
+  }
+
   .hero-logo {
     min-height: 31rem;
   }
@@ -1179,6 +1359,21 @@ img {
 
   .map-frame {
     min-height: 28rem;
+  }
+
+  .logo-strip {
+    min-height: 7.5rem;
+  }
+
+  .marquee-track {
+    gap: 2.2rem;
+    animation-duration: 34s;
+  }
+
+  .brand-single-box {
+    width: 8.25rem;
+    height: 5.25rem;
+    padding: 0.45rem;
   }
 }
 

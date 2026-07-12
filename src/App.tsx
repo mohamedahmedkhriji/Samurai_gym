@@ -122,6 +122,16 @@ const gallery = [
   'https://images.unsplash.com/photo-1599058917212-d750089bc07e?auto=format&fit=crop&w=900&q=85',
 ]
 
+const logoModules = import.meta.glob('../assets/logos/*.{png,jpg,jpeg,webp,svg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+
+const brandLogos = Object.entries(logoModules)
+  .sort(([first], [second]) => first.localeCompare(second))
+  .map(([, src]) => src)
+
 function SamuraiMark({ className = '' }: { className?: string }) {
   return (
     <div className={`samurai-mark ${className}`} aria-label="SAMURAI GYM logo mark">
@@ -167,6 +177,7 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [lightbox, setLightbox] = useState<string | null>(null)
   const [stats, setStats] = useState({ members: 0, days: 0, motivation: 0 })
+  const [scrollProgress, setScrollProgress] = useState(0)
   const { register, handleSubmit, reset } = useForm<ContactForm>()
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
@@ -217,6 +228,22 @@ function App() {
 
     return () => {
       context.revert()
+    }
+  }, [])
+
+  useEffect(() => {
+    const updateProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight
+      setScrollProgress(scrollable > 0 ? window.scrollY / scrollable : 0)
+    }
+
+    updateProgress()
+    window.addEventListener('scroll', updateProgress, { passive: true })
+    window.addEventListener('resize', updateProgress)
+
+    return () => {
+      window.removeEventListener('scroll', updateProgress)
+      window.removeEventListener('resize', updateProgress)
     }
   }, [])
 
@@ -355,6 +382,18 @@ function App() {
                 <span>{t('hero.stats.motivation')}</span>
               </div>
             </motion.div>
+          </div>
+        </section>
+
+        <section className="logo-strip" aria-label="SAMURAI GYM brand carousel">
+          <div className="marquee-wrap">
+            <div className="marquee-track">
+              {[...brandLogos, ...brandLogos].map((logo, index) => (
+                <div className="brand-single-box" key={`${logo}-${index}`}>
+                  <img src={logo} alt={`SAMURAI GYM brand logo ${index + 1}`} loading="lazy" />
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -525,6 +564,30 @@ function App() {
           <img src={lightbox} alt={t('gallery.preview')} />
         </button>
       )}
+
+      <button
+        type="button"
+        className={`progress-wrap ${scrollProgress > 0.02 ? 'active-progress' : ''}`}
+        aria-label="Scroll to top"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      >
+        <svg className="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+          <defs>
+            <linearGradient id="progress-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#E10600" />
+              <stop offset="100%" stopColor="#F8D86B" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98"
+            style={{
+              strokeDasharray: '307.919, 307.919',
+              strokeDashoffset: 307.919 - scrollProgress * 307.919,
+            }}
+          />
+        </svg>
+        <span>↑</span>
+      </button>
     </div>
   )
 }
