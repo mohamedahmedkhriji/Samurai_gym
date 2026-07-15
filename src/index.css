@@ -1139,10 +1139,20 @@ img {
 
 .coach-modal-content h3 {
   margin-top: 0.4rem;
-  font-family: Anton, Impact, sans-serif;
-  font-size: clamp(2.5rem, 6vw, 5.4rem);
-  line-height: 0.92;
+  max-width: 10ch;
+  color: #ffffff;
+  font-family: Knewave, Allan, cursive;
+  font-size: clamp(2.35rem, 5.5vw, 4.7rem);
+  letter-spacing: -1px;
+  line-height: 0.9;
   text-transform: uppercase;
+  transform: skewX(-8deg) rotate(-2deg);
+  transform-origin: left center;
+  text-shadow:
+    3px 3px 0 rgba(0, 0, 0, 0.8),
+    6px 6px 12px rgba(0, 0, 0, 0.4),
+    0 0 22px rgba(225, 6, 0, 0.22);
+  filter: contrast(1.12);
 }
 
 .coach-modal-content p {
