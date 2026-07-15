@@ -630,20 +630,51 @@ img {
 .service-card {
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: flex-end;
   min-height: 15rem;
   border-radius: 1.4rem;
   padding: 1.5rem;
   transition: background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
 }
 
+.service-card-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.06);
+  transition: opacity 260ms ease, transform 420ms ease;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(5, 5, 5, 0.08), rgba(5, 5, 5, 0.9)),
+    linear-gradient(90deg, rgba(5, 5, 5, 0.78), rgba(5, 5, 5, 0.2));
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+
 .service-card::after {
   content: '';
   position: absolute;
+  z-index: 2;
   inset: auto -20% -45% -20%;
   height: 70%;
   background: radial-gradient(circle, rgba(225, 6, 0, 0.24), transparent 68%);
   opacity: 0;
   transition: opacity 250ms ease;
+}
+
+.service-card-content {
+  position: relative;
+  z-index: 3;
 }
 
 .service-card:hover {
@@ -652,6 +683,17 @@ img {
     linear-gradient(145deg, rgba(212, 175, 55, 0.08), rgba(255, 255, 255, 0.015)),
     #0d0d0d;
   box-shadow: 0 20px 50px rgba(212, 175, 55, 0.18), 0 26px 90px rgba(0, 0, 0, 0.42);
+}
+
+.service-card:hover .service-card-image,
+.service-card:focus-within .service-card-image {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.service-card:hover::before,
+.service-card:focus-within::before {
+  opacity: 1;
 }
 
 .service-card:hover::after {
@@ -920,6 +962,11 @@ img {
 .coach-card {
   position: relative;
   overflow: hidden;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
   min-height: 25rem;
   border-radius: 1.5rem;
   transform-style: preserve-3d;
@@ -1000,6 +1047,172 @@ img {
   color: #a7a7a7;
   font-size: 0.9rem;
   font-weight: 700;
+}
+
+.coach-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.82);
+  padding: 1.25rem;
+  backdrop-filter: blur(12px);
+}
+
+.coach-modal {
+  position: relative;
+  display: grid;
+  width: min(100%, 58rem);
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(circle at 78% 12%, rgba(225, 6, 0, 0.18), transparent 22rem),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)),
+    #101010;
+  box-shadow: 0 32px 110px rgba(0, 0, 0, 0.7), 0 0 48px rgba(225, 6, 0, 0.12);
+}
+
+@media (min-width: 760px) {
+  .coach-modal {
+    grid-template-columns: minmax(20rem, 0.92fr) minmax(22rem, 1fr);
+  }
+}
+
+.coach-modal-close {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  z-index: 3;
+  display: grid;
+  width: 2.6rem;
+  height: 2.6rem;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.48);
+  color: #ffffff;
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.coach-modal-close:hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.7);
+  background: rgba(225, 6, 0, 0.22);
+}
+
+.coach-modal-media {
+  position: relative;
+  min-height: 30rem;
+  background:
+    linear-gradient(180deg, rgba(225, 6, 0, 0.08), rgba(0, 0, 0, 0.82)),
+    radial-gradient(circle at 50% 26%, rgba(212, 175, 55, 0.16), transparent 55%);
+}
+
+.coach-modal-media img {
+  width: 100%;
+  height: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  object-position: bottom center;
+  padding: 1rem 1rem 0;
+  filter: drop-shadow(0 28px 32px rgba(0, 0, 0, 0.62));
+}
+
+.coach-modal-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.4rem, 4vw, 2.5rem);
+}
+
+.coach-modal-content span {
+  color: #ff3b30;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.coach-modal-content h3 {
+  margin-top: 0.4rem;
+  font-family: Anton, Impact, sans-serif;
+  font-size: clamp(2.5rem, 6vw, 5.4rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+.coach-modal-content p {
+  margin-top: 0.8rem;
+  color: #d4af37;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.coach-contact-list {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+
+.coach-contact-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.055);
+  padding: 0.85rem 1rem;
+  color: #ffffff;
+  font-weight: 800;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.coach-contact-list a:hover {
+  transform: translateY(-2px);
+  border-color: rgba(212, 175, 55, 0.62);
+  background: rgba(212, 175, 55, 0.09);
+}
+
+.coach-agenda {
+  margin-top: 1.35rem;
+  border: 1px solid rgba(212, 175, 55, 0.18);
+  border-radius: 1rem;
+  background: rgba(0, 0, 0, 0.22);
+  padding: 1rem;
+}
+
+.coach-agenda h4 {
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.coach-agenda ul {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 0.9rem;
+}
+
+.coach-agenda li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: #d7d7d7;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.coach-agenda svg {
+  flex: 0 0 auto;
+  color: #d4af37;
 }
 
 .social-row a {

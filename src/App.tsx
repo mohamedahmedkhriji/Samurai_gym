@@ -6,18 +6,16 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import {
   ArrowRight,
-  Beef,
   Bike,
   CalendarDays,
   Check,
-  Dumbbell,
   Flame,
   MapPin,
   Menu,
   MessageCircle,
+  Shield,
+  Sparkles,
   Timer,
-  Trophy,
-  Users,
   X,
   Zap,
 } from 'lucide-react'
@@ -59,12 +57,36 @@ const navItems = [
 ]
 
 const serviceDefinitions = [
-  { icon: Dumbbell, key: 'weights' },
-  { icon: Bike, key: 'cardio' },
-  { icon: Zap, key: 'functional' },
-  { icon: Trophy, key: 'coaching' },
-  { icon: Beef, key: 'nutrition' },
-  { icon: Users, key: 'classes' },
+  {
+    icon: Flame,
+    key: 'kickboxing',
+    image: 'https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    icon: Shield,
+    key: 'taekwondo',
+    image: 'https://images.unsplash.com/photo-1555597673-b21d5c935865?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    icon: Zap,
+    key: 'kungfu',
+    image: 'https://images.unsplash.com/photo-1591117207239-788bf8de6c3b?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    icon: Sparkles,
+    key: 'gymnastique',
+    image: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    icon: Shield,
+    key: 'specialiteFemme',
+    image: 'https://images.unsplash.com/photo-1518310952931-b1de897abd40?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    icon: Bike,
+    key: 'cardio',
+    image: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?auto=format&fit=crop&w=900&q=85',
+  },
 ]
 
 const reasons = [
@@ -106,11 +128,46 @@ const plans = [
 ]
 
 const coaches = [
-  { name: 'Achref', roleKey: 'achref', image: achrefCoach },
-  { name: 'Ahmed', roleKey: 'ahmed', image: ahmedCoach },
-  { name: 'Coach Nermin', roleKey: 'nermin', image: nerminCoach },
-  { name: 'Coach Nourhen', roleKey: 'nourhen', image: nourhenCoach },
-  { name: 'Coach Zouhour', roleKey: 'zouhour', image: zouhourCoach },
+  {
+    name: 'Achref',
+    roleKey: 'achref',
+    image: achrefCoach,
+    phone: '+216 24 000 101',
+    email: 'achref@samuraigym.tn',
+    agenda: ['Monday: 08:00 - 12:00', 'Wednesday: 16:00 - 20:00', 'Friday: 08:00 - 12:00'],
+  },
+  {
+    name: 'Ahmed',
+    roleKey: 'ahmed',
+    image: ahmedCoach,
+    phone: '+216 24 000 102',
+    email: 'ahmed@samuraigym.tn',
+    agenda: ['Tuesday: 09:00 - 13:00', 'Thursday: 17:00 - 21:00', 'Saturday: 10:00 - 14:00'],
+  },
+  {
+    name: 'Coach Nermin',
+    roleKey: 'nermin',
+    image: nerminCoach,
+    phone: '+216 24 000 103',
+    email: 'nermin@samuraigym.tn',
+    agenda: ['Monday: 14:00 - 18:00', 'Wednesday: 09:00 - 13:00', 'Friday: 14:00 - 18:00'],
+  },
+  {
+    name: 'Coach Nourhen',
+    roleKey: 'nourhen',
+    image: nourhenCoach,
+    phone: '+216 24 000 104',
+    email: 'nourhen@samuraigym.tn',
+    agenda: ['Tuesday: 14:00 - 18:00', 'Thursday: 09:00 - 13:00', 'Saturday: 15:00 - 19:00'],
+  },
+  {
+    name: 'Coach Zouhour',
+    roleKey: 'zouhour',
+    image: zouhourCoach,
+    phone: '+216 24 000 105',
+    email: 'zouhour@samuraigym.tn',
+    agenda: ['Monday: 18:00 - 21:00', 'Wednesday: 18:00 - 21:00', 'Sunday: 10:00 - 13:00'],
+  },
 ]
 
 const gallery = [
@@ -176,6 +233,7 @@ function App() {
   const { t, i18n } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [lightbox, setLightbox] = useState<string | null>(null)
+  const [selectedCoach, setSelectedCoach] = useState<(typeof coaches)[number] | null>(null)
   const [stats, setStats] = useState({ members: 0, days: 0, motivation: 0 })
   const [scrollProgress, setScrollProgress] = useState(0)
   const { register, handleSubmit, reset } = useForm<ContactForm>()
@@ -404,14 +462,17 @@ function App() {
         <section id="services" className="section">
           <SectionHeader eyebrow={t('services.eyebrow')} title={t('services.title')} text={t('services.text')} />
           <div className="mx-auto mt-14 grid max-w-7xl gap-5 px-5 md:grid-cols-2 lg:grid-cols-3 lg:px-8">
-            {serviceDefinitions.map(({ icon: Icon, key }) => {
+            {serviceDefinitions.map(({ icon: Icon, key, image }) => {
               const copy = t(`services.items.${key}`, { returnObjects: true }) as string[]
 
               return (
               <motion.article key={key} whileHover={{ y: -8 }} className="service-card scroll-reveal">
-                <Icon className="text-samurai-red" size={30} />
-                <h3>{copy[0]}</h3>
-                <p>{copy[1]}</p>
+                <img className="service-card-image" src={image} alt="" loading="lazy" />
+                <div className="service-card-content">
+                  <Icon className="text-samurai-red" size={30} />
+                  <h3>{copy[0]}</h3>
+                  <p>{copy[1]}</p>
+                </div>
               </motion.article>
               )
             })}
@@ -422,7 +483,14 @@ function App() {
           <SectionHeader eyebrow={t('coaches.eyebrow')} title={t('coaches.title')} text={t('coaches.text')} />
           <div className="coach-grid mx-auto mt-14 grid max-w-7xl gap-5 px-5 md:grid-cols-2 lg:grid-cols-5 lg:px-8">
             {coaches.map((coach) => (
-              <motion.article key={coach.name} whileHover={{ y: -10, scale: 1.015 }} className="coach-card scroll-reveal">
+              <motion.button
+                key={coach.name}
+                type="button"
+                whileHover={{ y: -10, scale: 1.015 }}
+                className="coach-card scroll-reveal"
+                onClick={() => setSelectedCoach(coach)}
+                aria-label={`Open contact details for ${coach.name}`}
+              >
                 <div className="coach-image">
                   <img className="coach-portrait" src={coach.image} alt={`${coach.name} from SAMURAI GYM coaching team`} loading="lazy" />
                 </div>
@@ -431,7 +499,7 @@ function App() {
                   <h3>{coach.name}</h3>
                   <p>{t(`coaches.roles.${coach.roleKey}`)}</p>
                 </div>
-              </motion.article>
+              </motion.button>
             ))}
           </div>
         </section>
@@ -563,6 +631,54 @@ function App() {
           <X className="absolute right-6 top-6" size={30} />
           <img src={lightbox} alt={t('gallery.preview')} />
         </button>
+      )}
+
+      {selectedCoach && (
+        <div className="coach-modal-backdrop" role="presentation" onClick={() => setSelectedCoach(null)}>
+          <motion.div
+            className="coach-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="coach-modal-title"
+            initial={{ opacity: 0, y: 24, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 24, scale: 0.96 }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button type="button" className="coach-modal-close" onClick={() => setSelectedCoach(null)} aria-label="Close coach contact">
+              <X size={20} />
+            </button>
+            <div className="coach-modal-media">
+              <img src={selectedCoach.image} alt={`${selectedCoach.name} profile`} />
+            </div>
+            <div className="coach-modal-content">
+              <span>{t('coaches.label')}</span>
+              <h3 id="coach-modal-title">{selectedCoach.name}</h3>
+              <p>{t(`coaches.roles.${selectedCoach.roleKey}`)}</p>
+              <div className="coach-contact-list">
+                <a href={`tel:${selectedCoach.phone.replace(/\s/g, '')}`}>
+                  <img className="contact-icon" src={phoneWhatsappIcon} alt="" />
+                  {selectedCoach.phone}
+                </a>
+                <a href={`mailto:${selectedCoach.email}`}>
+                  <MessageCircle size={19} />
+                  {selectedCoach.email}
+                </a>
+              </div>
+              <div className="coach-agenda">
+                <h4>Agenda</h4>
+                <ul>
+                  {selectedCoach.agenda.map((slot) => (
+                    <li key={slot}>
+                      <CalendarDays size={17} />
+                      <span>{slot}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       )}
 
       <button
