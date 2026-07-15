@@ -10,9 +10,11 @@ import {
   CalendarDays,
   Check,
   Flame,
+  Mail,
   MapPin,
   Menu,
   MessageCircle,
+  Phone,
   Shield,
   Sparkles,
   Timer,
@@ -41,6 +43,21 @@ type ContactForm = {
   name: string
   phone: string
   goal: string
+}
+
+type CoachScheduleSlot = {
+  day: string
+  from: string
+  to: string
+}
+
+type CoachProfile = {
+  name: string
+  title: string
+  phone: string
+  email: string
+  image: string
+  schedule: CoachScheduleSlot[]
 }
 
 const usFlag =
@@ -104,6 +121,11 @@ const plans = [
     currency: 'DT',
   },
   {
+    key: 'collective',
+    price: '50',
+    currency: 'DT',
+  },
+  {
     key: 'three',
     oldPrice: '240 DT',
     price: '200',
@@ -134,7 +156,11 @@ const coaches = [
     image: achrefCoach,
     phone: '+216 24 000 101',
     email: 'achref@samuraigym.tn',
-    agenda: ['Monday: 08:00 - 12:00', 'Wednesday: 16:00 - 20:00', 'Friday: 08:00 - 12:00'],
+    schedule: [
+      { day: 'Monday', from: '08:00', to: '12:00' },
+      { day: 'Wednesday', from: '16:00', to: '20:00' },
+      { day: 'Friday', from: '08:00', to: '12:00' },
+    ],
   },
   {
     name: 'Ahmed',
@@ -142,7 +168,11 @@ const coaches = [
     image: ahmedCoach,
     phone: '+216 24 000 102',
     email: 'ahmed@samuraigym.tn',
-    agenda: ['Tuesday: 09:00 - 13:00', 'Thursday: 17:00 - 21:00', 'Saturday: 10:00 - 14:00'],
+    schedule: [
+      { day: 'Tuesday', from: '09:00', to: '13:00' },
+      { day: 'Thursday', from: '17:00', to: '21:00' },
+      { day: 'Saturday', from: '10:00', to: '14:00' },
+    ],
   },
   {
     name: 'Coach Nermin',
@@ -150,7 +180,11 @@ const coaches = [
     image: nerminCoach,
     phone: '+216 24 000 103',
     email: 'nermin@samuraigym.tn',
-    agenda: ['Monday: 14:00 - 18:00', 'Wednesday: 09:00 - 13:00', 'Friday: 14:00 - 18:00'],
+    schedule: [
+      { day: 'Monday', from: '14:00', to: '18:00' },
+      { day: 'Wednesday', from: '09:00', to: '13:00' },
+      { day: 'Friday', from: '14:00', to: '18:00' },
+    ],
   },
   {
     name: 'Coach Nourhen',
@@ -158,7 +192,11 @@ const coaches = [
     image: nourhenCoach,
     phone: '+216 24 000 104',
     email: 'nourhen@samuraigym.tn',
-    agenda: ['Tuesday: 14:00 - 18:00', 'Thursday: 09:00 - 13:00', 'Saturday: 15:00 - 19:00'],
+    schedule: [
+      { day: 'Tuesday', from: '14:00', to: '18:00' },
+      { day: 'Thursday', from: '09:00', to: '13:00' },
+      { day: 'Saturday', from: '15:00', to: '19:00' },
+    ],
   },
   {
     name: 'Coach Zouhour',
@@ -166,7 +204,11 @@ const coaches = [
     image: zouhourCoach,
     phone: '+216 24 000 105',
     email: 'zouhour@samuraigym.tn',
-    agenda: ['Monday: 18:00 - 21:00', 'Wednesday: 18:00 - 21:00', 'Sunday: 10:00 - 13:00'],
+    schedule: [
+      { day: 'Monday', from: '18:00', to: '21:00' },
+      { day: 'Wednesday', from: '18:00', to: '21:00' },
+      { day: 'Sunday', from: '10:00', to: '13:00' },
+    ],
   },
 ]
 
@@ -225,6 +267,118 @@ function SectionHeader({ eyebrow, title, text }: { eyebrow: string; title: strin
       <span>{eyebrow}</span>
       <h2>{title}</h2>
       <p>{text}</p>
+    </div>
+  )
+}
+
+function CoachProfileModal({ coach, onClose }: { coach: CoachProfile; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[90] grid place-items-center overflow-y-auto bg-black/85 px-4 py-8 backdrop-blur-xl" role="presentation" onClick={onClose}>
+      <motion.div
+        className="relative my-auto w-full max-w-6xl overflow-visible rounded-[32px] border border-white/[0.05] bg-[linear-gradient(135deg,#1B1B1B,#222222)] shadow-[0_36px_120px_rgba(0,0,0,.72)] backdrop-blur-[15px] md:min-h-[620px]"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="coach-modal-title"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3, ease: [0.19, 1, 0.22, 1] }}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          className="absolute right-4 top-4 z-30 grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-white/[0.08] text-white shadow-[0_12px_36px_rgba(0,0,0,.35)] transition duration-200 hover:rotate-90 hover:border-samurai-red/60 hover:bg-samurai-red"
+          onClick={onClose}
+          aria-label="Close coach contact"
+        >
+          <X size={22} />
+        </button>
+
+        <motion.img
+          className="pointer-events-none relative z-20 mx-auto -mt-16 h-[24rem] w-full max-w-[20rem] object-contain object-bottom drop-shadow-[0_20px_60px_rgba(0,0,0,.55)] md:absolute md:bottom-0 md:left-[-1.5rem] md:mt-0 md:h-[112%] md:max-w-[33rem] lg:left-[1.5rem] lg:max-w-[38rem]"
+          src={coach.image}
+          alt={`${coach.name} profile`}
+          initial={{ opacity: 0, x: -60 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.45, delay: 0.08, ease: [0.19, 1, 0.22, 1] }}
+        />
+
+        <motion.div
+          className="relative z-10 px-6 pb-7 pt-2 md:ml-auto md:w-[68%] md:py-12 md:pl-[11rem] md:pr-10 lg:w-[64%] lg:pl-[13rem] lg:pr-14"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.16, ease: [0.19, 1, 0.22, 1] }}
+        >
+          <motion.span
+            className="block text-xs font-black uppercase tracking-[0.28em] text-samurai-red"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.22 }}
+          >
+            Coach
+          </motion.span>
+          <motion.h3
+            id="coach-modal-title"
+            className="mt-3 max-w-[10ch] origin-left -skew-x-[8deg] -rotate-2 font-[Knewave,Allan,cursive] text-[clamp(3.1rem,10vw,6.4rem)] uppercase leading-[0.88] tracking-[-0.03em] text-white [filter:contrast(1.12)] [text-shadow:3px_3px_0_rgba(0,0,0,.8),6px_6px_12px_rgba(0,0,0,.4),0_0_22px_rgba(225,6,0,.22)]"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.28 }}
+          >
+            {coach.name}
+          </motion.h3>
+          <motion.p
+            className="mt-4 text-base font-black text-[#d4af37]"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.34 }}
+          >
+            {coach.title}
+          </motion.p>
+
+          <motion.div
+            className="mt-8 grid gap-3"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.4 }}
+          >
+            <a
+              className="flex h-14 items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.04] px-4 font-extrabold text-white transition duration-200 hover:-translate-y-0.5 hover:border-samurai-red/70 hover:shadow-[0_18px_44px_rgba(225,6,0,.16)]"
+              href={`tel:${coach.phone.replace(/\s/g, '')}`}
+            >
+              <Phone className="text-samurai-red" size={20} />
+              {coach.phone}
+            </a>
+            <a
+              className="flex h-14 items-center gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.04] px-4 font-extrabold text-white transition duration-200 hover:-translate-y-0.5 hover:border-samurai-red/70 hover:shadow-[0_18px_44px_rgba(225,6,0,.16)]"
+              href={`mailto:${coach.email}`}
+            >
+              <Mail className="text-samurai-red" size={20} />
+              {coach.email}
+            </a>
+          </motion.div>
+
+          <motion.div
+            className="mt-5 rounded-[24px] border border-white/[0.06] bg-white/[0.035] p-5"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.46 }}
+          >
+            <h4 className="text-xs font-black uppercase tracking-[0.24em] text-white">Availability</h4>
+            <ul className="mt-4 divide-y divide-white/[0.06]">
+              {coach.schedule.map((slot) => (
+                <li key={`${slot.day}-${slot.from}`} className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
+                  <span className="flex items-center gap-3 font-extrabold text-white">
+                    <CalendarDays className="text-samurai-red" size={18} />
+                    {slot.day}
+                  </span>
+                  <span className="text-sm font-bold text-white/55">
+                    {slot.from} — {slot.to}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </div>
   )
 }
@@ -526,7 +680,7 @@ function App() {
 
         <section id="pricing" className="section">
           <SectionHeader eyebrow={t('pricing.eyebrow')} title={t('pricing.title')} text={t('pricing.text')} />
-          <div className="mx-auto mt-14 grid max-w-7xl gap-6 px-5 md:grid-cols-2 xl:grid-cols-4 lg:px-8">
+          <div className="mx-auto mt-14 grid max-w-7xl gap-6 px-5 md:grid-cols-2 xl:grid-cols-5 lg:px-8">
             {plans.map((plan) => {
               const copy = t(`pricing.plans.${plan.key}`, { returnObjects: true }) as [string, string, string, string[]]
 
@@ -634,51 +788,17 @@ function App() {
       )}
 
       {selectedCoach && (
-        <div className="coach-modal-backdrop" role="presentation" onClick={() => setSelectedCoach(null)}>
-          <motion.div
-            className="coach-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="coach-modal-title"
-            initial={{ opacity: 0, y: 24, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 24, scale: 0.96 }}
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button type="button" className="coach-modal-close" onClick={() => setSelectedCoach(null)} aria-label="Close coach contact">
-              <X size={20} />
-            </button>
-            <div className="coach-modal-media">
-              <img src={selectedCoach.image} alt={`${selectedCoach.name} profile`} />
-            </div>
-            <div className="coach-modal-content">
-              <span>{t('coaches.label')}</span>
-              <h3 id="coach-modal-title">{selectedCoach.name}</h3>
-              <p>{t(`coaches.roles.${selectedCoach.roleKey}`)}</p>
-              <div className="coach-contact-list">
-                <a href={`tel:${selectedCoach.phone.replace(/\s/g, '')}`}>
-                  <img className="contact-icon" src={phoneWhatsappIcon} alt="" />
-                  {selectedCoach.phone}
-                </a>
-                <a href={`mailto:${selectedCoach.email}`}>
-                  <MessageCircle size={19} />
-                  {selectedCoach.email}
-                </a>
-              </div>
-              <div className="coach-agenda">
-                <h4>Agenda</h4>
-                <ul>
-                  {selectedCoach.agenda.map((slot) => (
-                    <li key={slot}>
-                      <CalendarDays size={17} />
-                      <span>{slot}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+        <CoachProfileModal
+          coach={{
+            name: selectedCoach.name,
+            title: t(`coaches.roles.${selectedCoach.roleKey}`),
+            phone: selectedCoach.phone,
+            email: selectedCoach.email,
+            image: selectedCoach.image,
+            schedule: selectedCoach.schedule,
+          }}
+          onClose={() => setSelectedCoach(null)}
+        />
       )}
 
       <button

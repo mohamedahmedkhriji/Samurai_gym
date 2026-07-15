@@ -81,6 +81,7 @@ export const resources = {
         select: 'Select Plan',
         plans: {
           one: ['Gym & Cardio', 'Full monthly access to the bodybuilding and cardio training floor.', '80 TND / month', ['Gym access', 'Cardio access', 'Monthly membership', 'Flexible start']],
+          collective: ['Group Classes', '3 collective training sessions per week for steady energy, coaching, and motivation.', '50 TND / month', ['3 sessions per week', 'Group coaching', 'High-energy classes', 'Monthly membership']],
           three: ['3 Months', 'Gym and cardio access for a stronger consistency phase.', '66.7 TND / month', ['Gym access', 'Cardio access', '3-month commitment', 'Better monthly value']],
           six: ['6 Months', 'Longer access for steady training and visible progress.', '53.3 TND / month', ['Gym access', 'Cardio access', '6-month commitment', 'Strong value']],
           twelve: ['1 Year', 'The best annual value for full gym and cardio access.', '45.8 TND / month', ['Gym access', 'Cardio access', '1-year membership', 'Best value']],
@@ -208,6 +209,7 @@ export const resources = {
         select: 'Choisir',
         plans: {
           one: ['Musculation + Cardio', 'Acces mensuel complet a la salle de musculation et au cardio.', '80 DT / mois', ['Acces musculation', 'Acces cardio', 'Abonnement mensuel', 'Debut flexible']],
+          collective: ['Cours Collectif', '3 seances collectives par semaine pour garder le rythme, l’energie et la motivation.', '50 DT / mois', ['3 seances / semaine', 'Coaching collectif', 'Cours dynamiques', 'Abonnement mensuel']],
           three: ['3 Mois', 'Acces musculation et cardio pour construire une vraie constance.', '66.7 DT / mois', ['Acces musculation', 'Acces cardio', 'Engagement 3 mois', 'Meilleure valeur mensuelle']],
           six: ['6 Mois', 'Un acces plus long pour progresser avec regularite.', '53.3 DT / mois', ['Acces musculation', 'Acces cardio', 'Engagement 6 mois', 'Tres bonne valeur']],
           twelve: ['1 An', 'La meilleure valeur annuelle pour musculation et cardio.', '45.8 DT / mois', ['Acces musculation', 'Acces cardio', 'Abonnement annuel', 'Meilleure valeur']],
