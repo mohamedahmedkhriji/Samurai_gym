@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -15,9 +16,12 @@ import {
   Menu,
   MessageCircle,
   Phone,
+  Plus,
+  Save,
   Shield,
   Sparkles,
   Timer,
+  Trash2,
   X,
   Zap,
 } from 'lucide-react'
@@ -58,6 +62,10 @@ type CoachProfile = {
   email: string
   image: string
   schedule: CoachScheduleSlot[]
+}
+
+type EditableCoach = CoachProfile & {
+  id: string
 }
 
 const usFlag =
@@ -149,10 +157,11 @@ const plans = [
   },
 ]
 
-const coaches = [
+const defaultCoaches: EditableCoach[] = [
   {
+    id: 'achref',
     name: 'Achref',
-    roleKey: 'achref',
+    title: 'Strength Coach',
     image: achrefCoach,
     phone: '+216 24 000 101',
     email: 'achref@samuraigym.tn',
@@ -163,8 +172,9 @@ const coaches = [
     ],
   },
   {
+    id: 'ahmed',
     name: 'Ahmed',
-    roleKey: 'ahmed',
+    title: 'Performance Coach',
     image: ahmedCoach,
     phone: '+216 24 000 102',
     email: 'ahmed@samuraigym.tn',
@@ -175,8 +185,9 @@ const coaches = [
     ],
   },
   {
+    id: 'nermin',
     name: 'Coach Nermin',
-    roleKey: 'nermin',
+    title: 'Fitness Coach',
     image: nerminCoach,
     phone: '+216 24 000 103',
     email: 'nermin@samuraigym.tn',
@@ -187,8 +198,9 @@ const coaches = [
     ],
   },
   {
+    id: 'nourhen',
     name: 'Coach Nourhen',
-    roleKey: 'nourhen',
+    title: "Women's Coaching",
     image: nourhenCoach,
     phone: '+216 24 000 104',
     email: 'nourhen@samuraigym.tn',
@@ -199,8 +211,9 @@ const coaches = [
     ],
   },
   {
+    id: 'zouhour',
     name: 'Coach Zouhour',
-    roleKey: 'zouhour',
+    title: 'Group Classes Coach',
     image: zouhourCoach,
     phone: '+216 24 000 105',
     email: 'zouhour@samuraigym.tn',
@@ -267,6 +280,229 @@ function SectionHeader({ eyebrow, title, text }: { eyebrow: string; title: strin
       <span>{eyebrow}</span>
       <h2>{title}</h2>
       <p>{text}</p>
+    </div>
+  )
+}
+
+const coachStorageKey = 'samurai-coaches'
+const adminCode = '1255'
+
+const createCoach = (): EditableCoach => ({
+  id: `coach-${Date.now()}`,
+  name: 'New Coach',
+  title: 'Coach Speciality',
+  image: samuraiLogo,
+  phone: '+216 ',
+  email: 'coach@samuraigym.tn',
+  schedule: [{ day: 'Monday', from: '08:00', to: '12:00' }],
+})
+
+const loadSavedCoaches = () => {
+  if (typeof window === 'undefined') {
+    return defaultCoaches
+  }
+
+  try {
+    const saved = window.localStorage.getItem(coachStorageKey)
+    if (!saved) {
+      return defaultCoaches
+    }
+
+    const parsed = JSON.parse(saved) as EditableCoach[]
+    if (!Array.isArray(parsed)) {
+      return defaultCoaches
+    }
+
+    return parsed.map((coach, index) => ({
+      id: coach.id || `coach-${index}`,
+      name: coach.name || 'Coach',
+      title: coach.title || 'Coach',
+      image: coach.image || samuraiLogo,
+      phone: coach.phone || '+216 ',
+      email: coach.email || 'coach@samuraigym.tn',
+      schedule: Array.isArray(coach.schedule) && coach.schedule.length > 0 ? coach.schedule : [{ day: 'Monday', from: '08:00', to: '12:00' }],
+    }))
+  } catch {
+    return defaultCoaches
+  }
+}
+
+function FooterTagline({ onOpenAdmin }: { onOpenAdmin: () => void }) {
+  return (
+    <p>
+      Power. Discipline. Respect.{' '}
+      <button type="button" className="font-inherit text-inherit underline-offset-4 hover:text-samurai-red hover:underline" onClick={onOpenAdmin}>
+        Strength.
+      </button>
+    </p>
+  )
+}
+
+function AdminLogin({ onBack, onUnlock }: { onBack: () => void; onUnlock: () => void }) {
+  const [code, setCode] = useState('')
+  const [error, setError] = useState('')
+
+  const verify = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (code.trim() === adminCode) {
+      setError('')
+      onUnlock()
+      return
+    }
+
+    setError('Wrong verification code')
+  }
+
+  return (
+    <div className="min-h-screen bg-samurai-black px-5 py-28 text-white">
+      <div className="mx-auto max-w-md rounded-[28px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_28px_90px_rgba(0,0,0,.45)]">
+        <SamuraiMark className="mb-6 h-14 w-14 text-2xl" />
+        <span className="text-xs font-black uppercase tracking-[0.28em] text-samurai-red">Admin verification</span>
+        <h1 className="mt-3 font-display text-5xl uppercase">Coach Desk</h1>
+        <form className="mt-8 grid gap-4" onSubmit={verify}>
+          <input
+            className="h-14 rounded-2xl border border-white/10 bg-black/40 px-4 font-bold text-white outline-none transition focus:border-samurai-red"
+            value={code}
+            onChange={(event) => setCode(event.target.value)}
+            placeholder="Verification code"
+            aria-label="Verification code"
+            type="password"
+          />
+          {error && <p className="text-sm font-bold text-samurai-red">{error}</p>}
+          <button type="submit" className="flex h-14 items-center justify-center gap-2 rounded-full bg-samurai-red px-5 text-sm font-black uppercase tracking-wide text-white shadow-red transition hover:bg-samurai-accent">
+            Open Admin <ArrowRight size={18} />
+          </button>
+          <button type="button" className="h-12 rounded-full border border-white/10 text-sm font-black uppercase tracking-wide text-white/70 transition hover:border-white/30 hover:text-white" onClick={onBack}>
+            Back to site
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function CoachAdminPage({
+  coaches,
+  onChange,
+  onSave,
+  onBack,
+}: {
+  coaches: EditableCoach[]
+  onChange: (coaches: EditableCoach[]) => void
+  onSave: () => void
+  onBack: () => void
+}) {
+  const updateCoach = (coachId: string, updates: Partial<EditableCoach>) => {
+    onChange(coaches.map((coach) => (coach.id === coachId ? { ...coach, ...updates } : coach)))
+  }
+
+  const updateCoachImage = (coachId: string, file: File | undefined) => {
+    if (!file) {
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        updateCoach(coachId, { image: reader.result })
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const updateSlot = (coachId: string, slotIndex: number, updates: Partial<CoachScheduleSlot>) => {
+    onChange(
+      coaches.map((coach) =>
+        coach.id === coachId
+          ? {
+              ...coach,
+              schedule: coach.schedule.map((slot, index) => (index === slotIndex ? { ...slot, ...updates } : slot)),
+            }
+          : coach,
+      ),
+    )
+  }
+
+  const addSlot = (coachId: string) => {
+    onChange(coaches.map((coach) => (coach.id === coachId ? { ...coach, schedule: [...coach.schedule, { day: 'Monday', from: '08:00', to: '12:00' }] } : coach)))
+  }
+
+  const removeSlot = (coachId: string, slotIndex: number) => {
+    onChange(coaches.map((coach) => (coach.id === coachId ? { ...coach, schedule: coach.schedule.filter((_, index) => index !== slotIndex) } : coach)))
+  }
+
+  return (
+    <div className="min-h-screen bg-samurai-black px-5 py-24 text-white">
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-col gap-5 border-b border-white/10 pb-8 md:flex-row md:items-end md:justify-between">
+          <div>
+            <span className="text-xs font-black uppercase tracking-[0.28em] text-samurai-red">SAMURAI GYM Admin</span>
+            <h1 className="mt-3 font-display text-5xl uppercase md:text-7xl">Coaches</h1>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <button type="button" className="flex h-12 items-center gap-2 rounded-full border border-white/10 px-5 text-sm font-black uppercase tracking-wide transition hover:border-white/30" onClick={onBack}>
+              <X size={17} /> Close
+            </button>
+            <button type="button" className="flex h-12 items-center gap-2 rounded-full border border-white/10 px-5 text-sm font-black uppercase tracking-wide transition hover:border-white/30" onClick={() => onChange([...coaches, createCoach()])}>
+              <Plus size={17} /> Add Coach
+            </button>
+            <button type="button" className="flex h-12 items-center gap-2 rounded-full bg-samurai-red px-5 text-sm font-black uppercase tracking-wide shadow-red transition hover:bg-samurai-accent" onClick={onSave}>
+              <Save size={17} /> Save
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-8 grid gap-5">
+          {coaches.map((coach) => (
+            <section key={coach.id} className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
+              <div className="grid gap-5 lg:grid-cols-[180px_1fr]">
+                <div>
+                  <div className="grid h-56 place-items-end overflow-hidden rounded-[24px] border border-white/10 bg-black/40">
+                    <img className="h-full w-full object-contain object-bottom" src={coach.image} alt={`${coach.name} preview`} />
+                  </div>
+                  <label className="mt-3 flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full border border-white/10 px-4 text-xs font-black uppercase tracking-wide text-white/80 transition hover:border-samurai-red hover:text-white">
+                    <Plus size={15} /> Upload Image
+                    <input className="sr-only" type="file" accept="image/*" onChange={(event) => updateCoachImage(coach.id, event.target.files?.[0])} />
+                  </label>
+                </div>
+
+                <div>
+                  <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto]">
+                    <input className="h-12 rounded-2xl border border-white/10 bg-black/40 px-4 font-bold outline-none focus:border-samurai-red" value={coach.name} onChange={(event) => updateCoach(coach.id, { name: event.target.value })} aria-label="Coach name" />
+                    <input className="h-12 rounded-2xl border border-white/10 bg-black/40 px-4 font-bold outline-none focus:border-samurai-red" value={coach.title} onChange={(event) => updateCoach(coach.id, { title: event.target.value })} aria-label="Coach speciality" />
+                    <input className="h-12 rounded-2xl border border-white/10 bg-black/40 px-4 font-bold outline-none focus:border-samurai-red" value={coach.phone} onChange={(event) => updateCoach(coach.id, { phone: event.target.value })} aria-label="Coach phone" />
+                    <button type="button" className="grid h-12 w-12 place-items-center rounded-full border border-white/10 text-white/70 transition hover:border-samurai-red hover:text-samurai-red" onClick={() => onChange(coaches.filter((item) => item.id !== coach.id))} aria-label={`Remove ${coach.name}`}>
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                  <input className="mt-4 h-12 w-full rounded-2xl border border-white/10 bg-black/40 px-4 font-bold outline-none focus:border-samurai-red" value={coach.email} onChange={(event) => updateCoach(coach.id, { email: event.target.value })} aria-label="Coach email" />
+
+                  <div className="mt-5">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <h2 className="text-xs font-black uppercase tracking-[0.24em] text-white/70">Agenda</h2>
+                      <button type="button" className="flex h-10 items-center gap-2 rounded-full border border-white/10 px-4 text-xs font-black uppercase tracking-wide transition hover:border-white/30" onClick={() => addSlot(coach.id)}>
+                        <Plus size={15} /> Add Time
+                      </button>
+                    </div>
+                    <div className="grid gap-3">
+                      {coach.schedule.map((slot, slotIndex) => (
+                        <div key={`${coach.id}-${slotIndex}`} className="grid gap-3 md:grid-cols-[1fr_140px_140px_auto]">
+                          <input className="h-11 rounded-2xl border border-white/10 bg-black/40 px-4 font-bold outline-none focus:border-samurai-red" value={slot.day} onChange={(event) => updateSlot(coach.id, slotIndex, { day: event.target.value })} aria-label="Agenda day" />
+                          <input className="h-11 rounded-2xl border border-white/10 bg-black/40 px-4 font-bold outline-none focus:border-samurai-red" value={slot.from} onChange={(event) => updateSlot(coach.id, slotIndex, { from: event.target.value })} aria-label="Start time" />
+                          <input className="h-11 rounded-2xl border border-white/10 bg-black/40 px-4 font-bold outline-none focus:border-samurai-red" value={slot.to} onChange={(event) => updateSlot(coach.id, slotIndex, { to: event.target.value })} aria-label="End time" />
+                          <button type="button" className="grid h-11 w-11 place-items-center rounded-full border border-white/10 text-white/70 transition hover:border-samurai-red hover:text-samurai-red" onClick={() => removeSlot(coach.id, slotIndex)} aria-label="Remove agenda time">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }
@@ -387,7 +623,10 @@ function App() {
   const { t, i18n } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [lightbox, setLightbox] = useState<string | null>(null)
-  const [selectedCoach, setSelectedCoach] = useState<(typeof coaches)[number] | null>(null)
+  const [coachProfiles, setCoachProfiles] = useState<EditableCoach[]>(loadSavedCoaches)
+  const [selectedCoach, setSelectedCoach] = useState<EditableCoach | null>(null)
+  const [adminView, setAdminView] = useState<'site' | 'verify' | 'admin'>(() => (window.location.hash === '#coach-admin' ? 'verify' : 'site'))
+  const [saveMessage, setSaveMessage] = useState('')
   const [stats, setStats] = useState({ members: 0, days: 0, motivation: 0 })
   const [scrollProgress, setScrollProgress] = useState(0)
   const { register, handleSubmit, reset } = useForm<ContactForm>()
@@ -405,6 +644,25 @@ function App() {
     const nextLanguage = isFrench ? 'en' : 'fr'
     i18n.changeLanguage(nextLanguage)
     localStorage.setItem('samurai-language', nextLanguage)
+  }
+
+  const openAdminVerification = () => {
+    window.location.hash = 'coach-admin'
+    setAdminView('verify')
+    setSaveMessage('')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const closeAdmin = () => {
+    window.history.pushState('', document.title, window.location.pathname + window.location.search)
+    setAdminView('site')
+    setSaveMessage('')
+  }
+
+  const saveCoaches = () => {
+    localStorage.setItem(coachStorageKey, JSON.stringify(coachProfiles))
+    setSaveMessage('Saved. The coach cards and agendas are updated.')
+    window.setTimeout(() => setSaveMessage(''), 2600)
   }
 
   useEffect(() => {
@@ -489,6 +747,19 @@ function App() {
     const body = t('contact.emailBody', data)
     window.location.href = `mailto:ramrocki@hotmail.com?subject=${subject}&body=${body}`
     reset()
+  }
+
+  if (adminView === 'verify') {
+    return <AdminLogin onBack={closeAdmin} onUnlock={() => setAdminView('admin')} />
+  }
+
+  if (adminView === 'admin') {
+    return (
+      <>
+        <CoachAdminPage coaches={coachProfiles} onChange={setCoachProfiles} onSave={saveCoaches} onBack={closeAdmin} />
+        {saveMessage && <div className="fixed bottom-5 left-1/2 z-[100] -translate-x-1/2 rounded-full bg-samurai-red px-5 py-3 text-sm font-black uppercase tracking-wide text-white shadow-red">{saveMessage}</div>}
+      </>
+    )
   }
 
   return (
@@ -636,7 +907,7 @@ function App() {
         <section id="about" className="section section-split">
           <SectionHeader eyebrow={t('coaches.eyebrow')} title={t('coaches.title')} text={t('coaches.text')} />
           <div className="coach-grid mx-auto mt-14 grid max-w-7xl gap-5 px-5 md:grid-cols-2 lg:grid-cols-5 lg:px-8">
-            {coaches.map((coach) => (
+            {coachProfiles.map((coach) => (
               <motion.button
                 key={coach.name}
                 type="button"
@@ -651,7 +922,7 @@ function App() {
                 <div className="coach-info">
                   <span>{t('coaches.label')}</span>
                   <h3>{coach.name}</h3>
-                  <p>{t(`coaches.roles.${coach.roleKey}`)}</p>
+                  <p>{coach.title}</p>
                 </div>
               </motion.button>
             ))}
@@ -758,7 +1029,7 @@ function App() {
           <div>
             <SamuraiMark className="mb-4 h-14 w-14 text-2xl" />
             <h2>SAMURAI GYM</h2>
-            <p>{t('footer.tagline')}</p>
+            <FooterTagline onOpenAdmin={openAdminVerification} />
           </div>
           <div>
             <h3>{t('footer.links')}</h3>
@@ -791,7 +1062,7 @@ function App() {
         <CoachProfileModal
           coach={{
             name: selectedCoach.name,
-            title: t(`coaches.roles.${selectedCoach.roleKey}`),
+            title: selectedCoach.title,
             phone: selectedCoach.phone,
             email: selectedCoach.email,
             image: selectedCoach.image,
