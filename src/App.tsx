@@ -949,7 +949,7 @@ function App() {
 
         <section id="about" className="section section-split">
           <SectionHeader eyebrow={t('coaches.eyebrow')} title={t('coaches.title')} text={t('coaches.text')} />
-          <div className="coach-grid mx-auto mt-14 grid max-w-7xl gap-5 px-5 md:grid-cols-2 lg:grid-cols-5 lg:px-8">
+          <div className="coach-grid mx-auto mt-14 grid max-w-7xl gap-5 px-5 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
             {coachProfiles.map((coach) => (
               <motion.button
                 key={coach.name}
