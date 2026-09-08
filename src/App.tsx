@@ -34,11 +34,9 @@ import heroVideo from '../assets/photos/INTRO BACKGROUND VEDIO .mp4'
 import instagramIcon from '../assets/icons/instagram.png'
 import modernEquipmentIcon from '../assets/icons/Modern Equipment.png'
 import motivatingIcon from '../assets/icons/Motivating Atmosphere.png'
-import nerminCoach from '../assets/photos/Coach Nermin.png'
 import nourhenCoach from '../assets/photos/Coach Nourhen.png'
 import phoneWhatsappIcon from '../assets/icons/phone and whatsapp.png'
 import professionalCoachesIcon from '../assets/icons/Professional Coaches.png'
-import zouhourCoach from '../assets/photos/Coach Zouhour.png'
 import samuraiLogo from '../assets/photos/LOGo.png'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -53,6 +51,7 @@ type CoachScheduleSlot = {
   day: string
   from: string
   to: string
+  role: string
 }
 
 type CoachProfile = {
@@ -166,61 +165,93 @@ const defaultCoaches: EditableCoach[] = [
     phone: '+216 24 000 101',
     email: 'achref@samuraigym.tn',
     schedule: [
-      { day: 'Monday', from: '08:00', to: '12:00' },
-      { day: 'Wednesday', from: '16:00', to: '20:00' },
-      { day: 'Friday', from: '08:00', to: '12:00' },
+      { day: 'Every day (7/7)', from: '14:00', to: '22:00', role: 'Coach plateau' },
+    ],
+  },
+  {
+    id: 'siwar',
+    name: 'Siwar',
+    title: 'Coach plateau',
+    image: samuraiLogo,
+    phone: '+216 24 000 102',
+    email: 'siwar@samuraigym.tn',
+    schedule: [
+      { day: 'Every day (7/7)', from: '08:00', to: '10:00', role: 'Coach plateau' },
+      { day: 'Monday', from: '10:00', to: '11:00', role: 'Cardio' },
+      { day: 'Wednesday', from: '10:00', to: '11:00', role: 'Step' },
+      { day: 'Friday', from: '10:00', to: '11:00', role: 'Tabata' },
+    ],
+  },
+  {
+    id: 'maha',
+    name: 'Maha',
+    title: 'Group Classes Coach',
+    image: samuraiLogo,
+    phone: '+216 24 000 103',
+    email: 'maha@samuraigym.tn',
+    schedule: [
+      { day: 'Monday', from: '08:00', to: '09:00', role: 'Body Combat' },
+      { day: 'Monday', from: '17:00', to: '18:00', role: 'Body Combat' },
+      { day: 'Wednesday', from: '08:00', to: '09:00', role: 'ABS' },
+      { day: 'Wednesday', from: '17:15', to: '18:15', role: 'ABS' },
+      { day: 'Friday', from: '08:00', to: '09:00', role: 'Cross Training' },
+      { day: 'Saturday', from: '08:00', to: '09:00', role: 'Cross Training' },
+      { day: 'Saturday', from: '09:00', to: '10:00', role: 'Step' },
+    ],
+  },
+  {
+    id: 'nourhen',
+    name: 'Nourhen',
+    title: 'Group Classes Coach',
+    image: nourhenCoach,
+    phone: '+216 24 000 104',
+    email: 'nourhen@samuraigym.tn',
+    schedule: [
+      { day: 'Monday', from: '18:00', to: '19:00', role: 'Step' },
+      { day: 'Tuesday, Thursday', from: '09:00', to: '10:00', role: 'Gymnastique' },
+      { day: 'Tuesday, Thursday', from: '10:30', to: '12:00', role: 'Kung Fu' },
+      { day: 'Tuesday', from: '20:00', to: '21:00', role: 'Renforcement' },
+      { day: 'Thursday', from: '20:00', to: '21:00', role: 'Circuit Training' },
+      { day: 'Friday', from: '17:00', to: '18:00', role: 'ABS' },
+      { day: 'Saturday', from: '20:00', to: '21:00', role: 'Cardio' },
+      { day: 'Sunday', from: '08:00', to: '09:00', role: 'Musculation' },
+      { day: 'Sunday', from: '10:00', to: '11:00', role: 'Gymnastique' },
+      { day: 'Sunday', from: '10:30', to: '12:00*', role: 'Kung Fu' },
+    ],
+  },
+  {
+    id: 'ahlem',
+    name: 'Ahlem',
+    title: 'Taekwondo Coach',
+    image: samuraiLogo,
+    phone: '+216 24 000 105',
+    email: 'ahlem@samuraigym.tn',
+    schedule: [
+      { day: 'Tuesday, Thursday', from: '18:30', to: '20:00', role: 'Taekwondo' },
+      { day: 'Saturday', from: '10:30', to: '12:00', role: 'Taekwondo' },
+    ],
+  },
+  {
+    id: 'mohamed-jaber',
+    name: 'Mohamed Jaber',
+    title: 'Boxing Coach',
+    image: samuraiLogo,
+    phone: '+216 24 000 106',
+    email: 'mohamed.jaber@samuraigym.tn',
+    schedule: [
+      { day: 'Monday, Wednesday, Friday', from: '18:30', to: 'end unspecified', role: 'Boxing' },
     ],
   },
   {
     id: 'ahmed',
     name: 'Ahmed',
-    title: 'Performance Coach',
+    title: 'Cross Training Coach',
     image: ahmedCoach,
-    phone: '+216 24 000 102',
+    phone: '+216 24 000 107',
     email: 'ahmed@samuraigym.tn',
     schedule: [
-      { day: 'Tuesday', from: '09:00', to: '13:00' },
-      { day: 'Thursday', from: '17:00', to: '21:00' },
-      { day: 'Saturday', from: '10:00', to: '14:00' },
-    ],
-  },
-  {
-    id: 'nermin',
-    name: 'Coach Nermin',
-    title: 'Fitness Coach',
-    image: nerminCoach,
-    phone: '+216 24 000 103',
-    email: 'nermin@samuraigym.tn',
-    schedule: [
-      { day: 'Monday', from: '14:00', to: '18:00' },
-      { day: 'Wednesday', from: '09:00', to: '13:00' },
-      { day: 'Friday', from: '14:00', to: '18:00' },
-    ],
-  },
-  {
-    id: 'nourhen',
-    name: 'Coach Nourhen',
-    title: "Women's Coaching",
-    image: nourhenCoach,
-    phone: '+216 24 000 104',
-    email: 'nourhen@samuraigym.tn',
-    schedule: [
-      { day: 'Tuesday', from: '14:00', to: '18:00' },
-      { day: 'Thursday', from: '09:00', to: '13:00' },
-      { day: 'Saturday', from: '15:00', to: '19:00' },
-    ],
-  },
-  {
-    id: 'zouhour',
-    name: 'Coach Zouhour',
-    title: 'Group Classes Coach',
-    image: zouhourCoach,
-    phone: '+216 24 000 105',
-    email: 'zouhour@samuraigym.tn',
-    schedule: [
-      { day: 'Monday', from: '18:00', to: '21:00' },
-      { day: 'Wednesday', from: '18:00', to: '21:00' },
-      { day: 'Sunday', from: '10:00', to: '13:00' },
+      { day: 'Monday', from: '20:30', to: '21:30', role: 'Cross Training' },
+      { day: 'Wednesday, Friday', from: '20:00', to: '21:00', role: 'Cross Training' },
     ],
   },
 ]
@@ -284,7 +315,7 @@ function SectionHeader({ eyebrow, title, text }: { eyebrow: string; title: strin
   )
 }
 
-const coachStorageKey = 'samurai-coaches'
+const coachStorageKey = 'samurai-coaches-v2'
 const adminCode = '1255'
 
 const createCoach = (): EditableCoach => ({
@@ -294,7 +325,7 @@ const createCoach = (): EditableCoach => ({
   image: samuraiLogo,
   phone: '+216 ',
   email: 'coach@samuraigym.tn',
-  schedule: [{ day: 'Monday', from: '08:00', to: '12:00' }],
+  schedule: [{ day: 'Monday', from: '08:00', to: '12:00', role: 'Coach plateau' }],
 })
 
 const loadSavedCoaches = () => {
@@ -320,7 +351,15 @@ const loadSavedCoaches = () => {
       image: coach.image || samuraiLogo,
       phone: coach.phone || '+216 ',
       email: coach.email || 'coach@samuraigym.tn',
-      schedule: Array.isArray(coach.schedule) && coach.schedule.length > 0 ? coach.schedule : [{ day: 'Monday', from: '08:00', to: '12:00' }],
+      schedule:
+        Array.isArray(coach.schedule) && coach.schedule.length > 0
+          ? coach.schedule.map((slot) => ({
+              day: slot.day || 'Monday',
+              from: slot.from || '08:00',
+              to: slot.to || '12:00',
+              role: slot.role || coach.title || 'Coach plateau',
+            }))
+          : [{ day: 'Monday', from: '08:00', to: '12:00', role: 'Coach plateau' }],
     }))
   } catch {
     return defaultCoaches
@@ -424,7 +463,7 @@ function CoachAdminPage({
   }
 
   const addSlot = (coachId: string) => {
-    onChange(coaches.map((coach) => (coach.id === coachId ? { ...coach, schedule: [...coach.schedule, { day: 'Monday', from: '08:00', to: '12:00' }] } : coach)))
+    onChange(coaches.map((coach) => (coach.id === coachId ? { ...coach, schedule: [...coach.schedule, { day: 'Monday', from: '08:00', to: '12:00', role: 'Coach plateau' }] } : coach)))
   }
 
   const removeSlot = (coachId: string, slotIndex: number) => {
@@ -486,10 +525,11 @@ function CoachAdminPage({
                     </div>
                     <div className="grid gap-3">
                       {coach.schedule.map((slot, slotIndex) => (
-                        <div key={`${coach.id}-${slotIndex}`} className="grid gap-3 md:grid-cols-[1fr_140px_140px_auto]">
+                        <div key={`${coach.id}-${slotIndex}`} className="grid gap-3 md:grid-cols-[1fr_140px_140px_1fr_auto]">
                           <input className="h-11 rounded-2xl border border-white/10 bg-black/40 px-4 font-bold outline-none focus:border-samurai-red" value={slot.day} onChange={(event) => updateSlot(coach.id, slotIndex, { day: event.target.value })} aria-label="Agenda day" />
                           <input className="h-11 rounded-2xl border border-white/10 bg-black/40 px-4 font-bold outline-none focus:border-samurai-red" value={slot.from} onChange={(event) => updateSlot(coach.id, slotIndex, { from: event.target.value })} aria-label="Start time" />
                           <input className="h-11 rounded-2xl border border-white/10 bg-black/40 px-4 font-bold outline-none focus:border-samurai-red" value={slot.to} onChange={(event) => updateSlot(coach.id, slotIndex, { to: event.target.value })} aria-label="End time" />
+                          <input className="h-11 rounded-2xl border border-white/10 bg-black/40 px-4 font-bold outline-none focus:border-samurai-red" value={slot.role} onChange={(event) => updateSlot(coach.id, slotIndex, { role: event.target.value })} aria-label="Class or role" />
                           <button type="button" className="grid h-11 w-11 place-items-center rounded-full border border-white/10 text-white/70 transition hover:border-samurai-red hover:text-samurai-red" onClick={() => removeSlot(coach.id, slotIndex)} aria-label="Remove agenda time">
                             <Trash2 size={16} />
                           </button>
@@ -601,13 +641,16 @@ function CoachProfileModal({ coach, onClose }: { coach: CoachProfile; onClose: (
             <h4 className="text-xs font-black uppercase tracking-[0.24em] text-white">Availability</h4>
             <ul className="mt-4 divide-y divide-white/[0.06]">
               {coach.schedule.map((slot) => (
-                <li key={`${slot.day}-${slot.from}`} className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0">
-                  <span className="flex items-center gap-3 font-extrabold text-white">
-                    <CalendarDays className="text-samurai-red" size={18} />
-                    {slot.day}
+                <li key={`${slot.day}-${slot.from}-${slot.role}`} className="grid gap-3 py-3 first:pt-0 last:pb-0 sm:grid-cols-[1fr_auto] sm:items-center">
+                  <span className="flex min-w-0 items-center gap-3 font-extrabold text-white">
+                    <CalendarDays className="shrink-0 text-samurai-red" size={18} />
+                    <span className="min-w-0">
+                      <span className="block truncate">{slot.day}</span>
+                      <span className="mt-1 block text-xs font-black uppercase tracking-[0.16em] text-[#d4af37]">{slot.role}</span>
+                    </span>
                   </span>
-                  <span className="text-sm font-bold text-white/55">
-                    {slot.from} — {slot.to}
+                  <span className="text-sm font-bold text-white/55 sm:text-right">
+                    {slot.from} - {slot.to}
                   </span>
                 </li>
               ))}
