@@ -89,3 +89,19 @@ CREATE INDEX IF NOT EXISTS idx_coach_schedule_day_time
 
 CREATE INDEX IF NOT EXISTS idx_coach_schedule_coach
   ON coach_schedule (coach_id);
+
+ALTER TABLE coaches ENABLE ROW LEVEL SECURITY;
+ALTER TABLE coach_schedule ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read coaches" ON coaches;
+DROP POLICY IF EXISTS "Allow public read coach schedule" ON coach_schedule;
+
+CREATE POLICY "Allow public read coaches"
+  ON coaches
+  FOR SELECT
+  USING (true);
+
+CREATE POLICY "Allow public read coach schedule"
+  ON coach_schedule
+  FOR SELECT
+  USING (true);
