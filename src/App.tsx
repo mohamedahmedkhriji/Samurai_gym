@@ -1506,7 +1506,6 @@ function App() {
                             {session && (
                               <article className={`planning-session ${dimmed ? 'is-dim' : ''}`} data-discipline={toAgendaFilter(session.discipline)} data-coach={session.filter}>
                                 <span className="planning-coach">{session.coach}</span>
-                                <h3>{session.discipline}</h3>
                                 <span className="planning-speciality">{session.speciality}</span>
                                 <span className="planning-duration">
                                   <Timer size={11} aria-hidden="true" />
