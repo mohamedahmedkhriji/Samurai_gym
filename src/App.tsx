@@ -91,6 +91,15 @@ type DbScheduleRow = {
   } | null
 }
 
+type DbCoachRow = {
+  id: number
+  name: string
+  speciality: string
+  image_url: string
+  phone: string | null
+  email: string | null
+}
+
 const usFlag =
   "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='512'%20height='512'%20viewBox='0%200%20512%20512'%3e%3cmask%20id='a'%3e%3ccircle%20cx='256'%20cy='256'%20r='256'%20fill='%23fff'/%3e%3c/mask%3e%3cg%20mask='url(%23a)'%3e%3cpath%20fill='%23eee'%20d='M256%200h256v64l-32%2032%2032%2032v64l-32%2032%2032%2032v64l-32%2032%2032%2032v64l-256%2032L0%20448v-64l32-32-32-32v-64z'/%3e%3cpath%20fill='%23d80027'%20d='M224%2064h288v64H224Zm0%20128h288v64H256ZM0%20320h512v64H0Zm0%20128h512v64H0Z'/%3e%3cpath%20fill='%230052b4'%20d='M0%200h256v256H0Z'/%3e%3cpath%20fill='%23eee'%20d='m187%20243%2057-41h-70l57%2041-22-67zm-81%200%2057-41H93l57%2041-22-67zm-81%200%2057-41H12l57%2041-22-67zm162-81%2057-41h-70l57%2041-22-67zm-81%200%2057-41H93l57%2041-22-67zm-81%200%2057-41H12l57%2041-22-67Zm162-82%2057-41h-70l57%2041-22-67Zm-81%200%2057-41H93l57%2041-22-67zm-81%200%2057-41H12l57%2041-22-67Z'/%3e%3c/g%3e%3c/svg%3e"
 const frFlag =
@@ -308,11 +317,66 @@ const weeklyAgenda: AgendaRow[] = [
 
 const normalizeTime = (time: string) => time.slice(0, 5)
 
+const englishDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
 const toAgendaFilter = (discipline: string) =>
   discipline
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
+
+const normalizeScheduleDay = (day: string) => {
+  const normalized = day.trim().toLowerCase()
+  const aliases: Record<string, string> = {
+    monday: 'Monday',
+    lundi: 'Monday',
+    tuesday: 'Tuesday',
+    mardi: 'Tuesday',
+    wednesday: 'Wednesday',
+    mercredi: 'Wednesday',
+    thursday: 'Thursday',
+    jeudi: 'Thursday',
+    friday: 'Friday',
+    vendredi: 'Friday',
+    saturday: 'Saturday',
+    samedi: 'Saturday',
+    sunday: 'Sunday',
+    dimanche: 'Sunday',
+  }
+
+  return aliases[normalized]
+}
+
+const expandScheduleDays = (day: string) => {
+  if (day.toLowerCase().includes('every day')) {
+    return englishDays
+  }
+
+  return day
+    .split(',')
+    .map(normalizeScheduleDay)
+    .filter((value): value is string => Boolean(value))
+}
+
+const normalizeDbTime = (time: string) => {
+  const match = time.match(/\d{1,2}:\d{2}/)
+
+  if (!match) {
+    return null
+  }
+
+  const [hour, minute] = match[0].split(':')
+  return `${hour.padStart(2, '0')}:${minute}:00`
+}
+
+const durationBetweenTimes = (from: string, to: string) => {
+  const [fromHour, fromMinute] = from.split(':').map(Number)
+  const [toHour, toMinute] = to.split(':').map(Number)
+  const start = fromHour * 60 + fromMinute
+  const end = toHour * 60 + toMinute
+
+  return Math.max(15, end - start)
+}
 
 const createEmptyAgendaRow = (from: string, to: string): AgendaRow => ({
   from,
@@ -347,35 +411,23 @@ const buildAgendaFromSchedule = (schedule: DbScheduleRow[]): AgendaRow[] => {
   return Array.from(rows.values()).sort((left, right) => left.from.localeCompare(right.from) || left.to.localeCompare(right.to))
 }
 
-const buildCoachesFromSchedule = (schedule: DbScheduleRow[]): EditableCoach[] => {
-  const coaches = new Map<string, EditableCoach>()
-
-  schedule.forEach((slot) => {
-    if (!slot.coaches) {
-      return
-    }
-
-    const coach = coaches.get(slot.coaches.name) ?? {
-      id: toAgendaFilter(slot.coaches.name),
-      name: slot.coaches.name,
-      title: slot.coaches.speciality,
-      image: slot.coaches.image_url,
-      phone: slot.coaches.phone || '+216 ',
-      email: slot.coaches.email || 'coach@samuraigym.tn',
-      schedule: [],
-    }
-
-    coach.schedule.push({
-      day: slot.day_name,
-      from: normalizeTime(slot.start_time),
-      to: normalizeTime(slot.end_time),
-      role: slot.class_name,
-    })
-    coaches.set(slot.coaches.name, coach)
-  })
-
-  return Array.from(coaches.values())
-}
+const buildCoachesFromDatabase = (coaches: DbCoachRow[], schedule: DbScheduleRow[]): EditableCoach[] =>
+  coaches.map((coach) => ({
+    id: String(coach.id),
+    name: coach.name,
+    title: coach.speciality,
+    image: coach.image_url,
+    phone: coach.phone || '+216 ',
+    email: coach.email || 'coach@samuraigym.tn',
+    schedule: schedule
+      .filter((slot) => slot.coaches?.name === coach.name)
+      .map((slot) => ({
+        day: slot.day_name,
+        from: normalizeTime(slot.start_time),
+        to: normalizeTime(slot.end_time),
+        role: slot.class_name,
+      })),
+  }))
 
 const plans = [
   {
@@ -972,43 +1024,153 @@ function App() {
     setSaveMessage('')
   }
 
-  const saveCoaches = () => {
+  const loadDatabaseSchedule = async () => {
+    if (!isSupabaseConfigured || !supabase) {
+      return false
+    }
+
+    const [scheduleResult, coachesResult] = await Promise.all([
+      supabase
+        .from('coach_schedule')
+        .select('day_name, start_time, end_time, class_name, duration_minutes, coaches(name, speciality, image_url, phone, email)')
+        .order('start_time', { ascending: true }),
+      supabase
+        .from('coaches')
+        .select('id, name, speciality, image_url, phone, email')
+        .order('name', { ascending: true }),
+    ])
+
+    if (scheduleResult.error) {
+      console.warn('Could not load coach schedule from Supabase:', scheduleResult.error.message)
+      return false
+    }
+
+    if (coachesResult.error) {
+      console.warn('Could not load coaches from Supabase:', coachesResult.error.message)
+      return false
+    }
+
+    const schedule = (scheduleResult.data ?? []) as unknown as DbScheduleRow[]
+    const databaseCoaches = (coachesResult.data ?? []) as DbCoachRow[]
+
+    if (schedule.length > 0) {
+      setAgendaRows(buildAgendaFromSchedule(schedule))
+    }
+
+    if (databaseCoaches.length > 0) {
+      setCoachProfiles(buildCoachesFromDatabase(databaseCoaches, schedule))
+    }
+
+    if (schedule.length > 0 || databaseCoaches.length > 0) {
+      setAgendaMode('database')
+      return true
+    }
+
+    return false
+  }
+
+  const saveCoaches = async () => {
     localStorage.setItem(coachStorageKey, JSON.stringify(coachProfiles))
-    setSaveMessage('Saved. The coach cards and agendas are updated.')
+
+    if (!isSupabaseConfigured || !supabase) {
+      setSaveMessage('Saved locally. Add Supabase keys to save to the database.')
+      window.setTimeout(() => setSaveMessage(''), 3200)
+      return
+    }
+
+    const coachRows = coachProfiles.map((coach) => ({
+      name: coach.name,
+      speciality: coach.title,
+      image_url: coach.image,
+      phone: coach.phone,
+      email: coach.email,
+      updated_at: new Date().toISOString(),
+    }))
+
+    const { data: savedCoaches, error: coachError } = await supabase
+      .from('coaches')
+      .upsert(coachRows, { onConflict: 'name' })
+      .select('id, name')
+
+    if (coachError || !savedCoaches) {
+      console.warn('Could not save coaches to Supabase:', coachError?.message)
+      setSaveMessage('Saved locally, but database save failed.')
+      window.setTimeout(() => setSaveMessage(''), 3200)
+      return
+    }
+
+    const coachIdByName = new Map(savedCoaches.map((coach) => [coach.name, coach.id as number]))
+    const coachIds = savedCoaches.map((coach) => coach.id as number)
+    const scheduleRows = coachProfiles.flatMap((coach) => {
+      const coachId = coachIdByName.get(coach.name)
+
+      if (!coachId) {
+        return []
+      }
+
+      return coach.schedule.flatMap((slot) => {
+        const startTime = normalizeDbTime(slot.from)
+        const endTime = normalizeDbTime(slot.to)
+
+        if (!startTime || !endTime) {
+          return []
+        }
+
+        return expandScheduleDays(slot.day).map((dayName) => ({
+          coach_id: coachId,
+          day_name: dayName,
+          start_time: startTime,
+          end_time: endTime,
+          class_name: slot.role || coach.title,
+          duration_minutes: durationBetweenTimes(startTime, endTime),
+        }))
+      })
+    })
+
+    if (coachIds.length > 0) {
+      const { error: deleteError } = await supabase
+        .from('coach_schedule')
+        .delete()
+        .in('coach_id', coachIds)
+
+      if (deleteError) {
+        console.warn('Could not replace coach schedule in Supabase:', deleteError.message)
+        setSaveMessage('Coaches saved, but agenda update failed.')
+        window.setTimeout(() => setSaveMessage(''), 3200)
+        return
+      }
+    }
+
+    if (scheduleRows.length > 0) {
+      const { error: scheduleError } = await supabase
+        .from('coach_schedule')
+        .insert(scheduleRows)
+
+      if (scheduleError) {
+        console.warn('Could not save coach schedule to Supabase:', scheduleError.message)
+        setSaveMessage('Coaches saved, but agenda update failed.')
+        window.setTimeout(() => setSaveMessage(''), 3200)
+        return
+      }
+    }
+
+    await loadDatabaseSchedule()
+    setSaveMessage('Saved to database. The coach cards and agenda are live.')
     window.setTimeout(() => setSaveMessage(''), 2600)
   }
 
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) {
+    if (!isSupabaseConfigured) {
       return
     }
 
     let isMounted = true
-    const database = supabase
 
-    const loadDatabaseSchedule = async () => {
-      const { data, error } = await database
-        .from('coach_schedule')
-        .select('day_name, start_time, end_time, class_name, duration_minutes, coaches(name, speciality, image_url, phone, email)')
-        .order('start_time', { ascending: true })
-
-      if (error) {
-        console.warn('Could not load coach schedule from Supabase:', error.message)
+    loadDatabaseSchedule().then((loaded) => {
+      if (!isMounted || !loaded) {
         return
       }
-
-      const schedule = (data ?? []) as unknown as DbScheduleRow[]
-
-      if (!isMounted || schedule.length === 0) {
-        return
-      }
-
-      setAgendaRows(buildAgendaFromSchedule(schedule))
-      setCoachProfiles(buildCoachesFromSchedule(schedule))
-      setAgendaMode('database')
-    }
-
-    loadDatabaseSchedule()
+    })
 
     return () => {
       isMounted = false
