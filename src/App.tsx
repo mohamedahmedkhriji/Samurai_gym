@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { isSupabaseConfigured, supabase } from './lib/supabase'
 import {
   ArrowRight,
   Bike,
@@ -25,18 +26,13 @@ import {
   X,
   Zap,
 } from 'lucide-react'
-import affordableIcon from '../assets/icons/Affordable Pricing.png'
 import achrefCoach from '../assets/photos/Achref coach.png'
 import ahmedCoach from '../assets/photos/Ahmed coach.png'
 import facebookIcon from '../assets/icons/facebook.png'
-import friendlyIcon from '../assets/icons/Friendly Community.png'
 import heroVideo from '../assets/photos/INTRO BACKGROUND VEDIO .mp4'
 import instagramIcon from '../assets/icons/instagram.png'
-import modernEquipmentIcon from '../assets/icons/Modern Equipment.png'
-import motivatingIcon from '../assets/icons/Motivating Atmosphere.png'
 import nourhenCoach from '../assets/photos/Coach Nourhen.png'
 import phoneWhatsappIcon from '../assets/icons/phone and whatsapp.png'
-import professionalCoachesIcon from '../assets/icons/Professional Coaches.png'
 import samuraiLogo from '../assets/photos/LOGo.png'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -65,6 +61,34 @@ type CoachProfile = {
 
 type EditableCoach = CoachProfile & {
   id: string
+}
+
+type AgendaSession = {
+  coach: string
+  discipline: string
+  duration: string
+  filter: string
+}
+
+type AgendaRow = {
+  from: string
+  to: string
+  sessions: (AgendaSession | null)[]
+}
+
+type DbScheduleRow = {
+  day_name: string
+  start_time: string
+  end_time: string
+  class_name: string
+  duration_minutes: number
+  coaches: {
+    name: string
+    speciality: string
+    image_url: string
+    phone: string | null
+    email: string | null
+  } | null
 }
 
 const usFlag =
@@ -113,13 +137,245 @@ const serviceDefinitions = [
   },
 ]
 
-const reasons = [
-  { icon: professionalCoachesIcon, key: 'coaches' },
-  { icon: modernEquipmentIcon, key: 'equipment' },
-  { icon: friendlyIcon, key: 'community' },
-  { icon: motivatingIcon, key: 'atmosphere' },
-  { icon: affordableIcon, key: 'affordable' },
+const agendaDays = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
+
+const dbDayToAgendaIndex: Record<string, number> = {
+  Monday: 0,
+  Tuesday: 1,
+  Wednesday: 2,
+  Thursday: 3,
+  Friday: 4,
+  Saturday: 5,
+  Sunday: 6,
+}
+
+const agendaFilters = [
+  { label: 'Tout', value: 'all' },
+  { label: 'Body Combat', value: 'body-combat' },
+  { label: 'ABS', value: 'abs' },
+  { label: 'Cross Training', value: 'cross-training' },
+  { label: 'Musculation', value: 'musculation' },
+  { label: 'Gymnastique', value: 'gymnastique' },
+  { label: 'Step', value: 'step' },
+  { label: 'Cardio', value: 'cardio' },
+  { label: 'Tabata', value: 'tabata' },
+  { label: 'Kung Fu', value: 'kung-fu' },
+  { label: 'Taekwondo', value: 'taekwondo' },
+  { label: 'Boxe', value: 'boxe' },
+  { label: 'Renforcement', value: 'renforcement' },
+  { label: 'Circuit Training', value: 'circuit-training' },
 ]
+
+const agendaSession = (coach: string, discipline: string, duration: string, filter: string): AgendaSession => ({
+  coach,
+  discipline,
+  duration,
+  filter,
+})
+
+const weeklyAgenda: AgendaRow[] = [
+  {
+    from: '08:00',
+    to: '09:00',
+    sessions: [
+      agendaSession('Maha', 'Body Combat', '60 min', 'body-combat'),
+      null,
+      agendaSession('Maha', 'ABS', '60 min', 'abs'),
+      null,
+      agendaSession('Maha', 'Cross Training', '60 min', 'cross-training'),
+      null,
+      agendaSession('Nourhen', 'Musculation', '60 min', 'musculation'),
+    ],
+  },
+  {
+    from: '09:00',
+    to: '10:00',
+    sessions: [
+      null,
+      agendaSession('Nourhen', 'Gymnastique', '60 min', 'gymnastique'),
+      null,
+      agendaSession('Nourhen', 'Gymnastique', '60 min', 'gymnastique'),
+      null,
+      agendaSession('Maha', 'Step', '60 min', 'step'),
+      agendaSession('Nourhen', 'Gymnastique', '60 min', 'gymnastique'),
+    ],
+  },
+  {
+    from: '10:00',
+    to: '11:00',
+    sessions: [
+      agendaSession('Siwar', 'Cardio', '60 min', 'cardio'),
+      null,
+      agendaSession('Siwar', 'Step', '60 min', 'step'),
+      null,
+      agendaSession('Siwar', 'Tabata', '60 min', 'tabata'),
+      null,
+      null,
+    ],
+  },
+  {
+    from: '10:30',
+    to: '12:00',
+    sessions: [
+      null,
+      agendaSession('Nourhen', 'Kung Fu', '90 min', 'kung-fu'),
+      null,
+      agendaSession('Nourhen', 'Kung Fu', '90 min', 'kung-fu'),
+      null,
+      agendaSession('Ahlem', 'Taekwondo', '90 min', 'taekwondo'),
+      agendaSession('Nourhen', 'Kung Fu', '90 min', 'kung-fu'),
+    ],
+  },
+  {
+    from: '17:00',
+    to: '18:00',
+    sessions: [
+      agendaSession('Maha', 'Body Combat', '60 min', 'body-combat'),
+      null,
+      agendaSession('Maha', 'ABS', '60 min', 'abs'),
+      null,
+      agendaSession('Nourhen', 'ABS', '60 min', 'abs'),
+      null,
+      null,
+    ],
+  },
+  {
+    from: '18:00',
+    to: '19:00',
+    sessions: [
+      agendaSession('Nourhen', 'Step', '60 min', 'step'),
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ],
+  },
+  {
+    from: '18:30',
+    to: '20:00',
+    sessions: [
+      null,
+      agendaSession('Ahlem', 'Taekwondo', '90 min', 'taekwondo'),
+      agendaSession('Med Jaber', 'Boxe', '90 min', 'boxe'),
+      agendaSession('Ahlem', 'Taekwondo', '90 min', 'taekwondo'),
+      agendaSession('Med Jaber', 'Boxe', '90 min', 'boxe'),
+      null,
+      null,
+    ],
+  },
+  {
+    from: '19:00',
+    to: '20:00',
+    sessions: [
+      agendaSession('Med Jaber', 'Boxe', '60 min', 'boxe'),
+      null,
+      null,
+      null,
+      null,
+      agendaSession('Nourhen', 'Cardio', '60 min', 'cardio'),
+      null,
+    ],
+  },
+  {
+    from: '20:00',
+    to: '21:00',
+    sessions: [
+      null,
+      agendaSession('Nourhen', 'Renforcement', '60 min', 'renforcement'),
+      agendaSession('Ahmed', 'Cross Training', '60 min', 'cross-training'),
+      agendaSession('Nourhen', 'Circuit Training', '60 min', 'circuit-training'),
+      agendaSession('Ahmed', 'Cross Training', '60 min', 'cross-training'),
+      null,
+      null,
+    ],
+  },
+  {
+    from: '20:30',
+    to: '21:30',
+    sessions: [
+      agendaSession('Ahmed', 'Cross Training', '60 min', 'cross-training'),
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ],
+  },
+]
+
+const normalizeTime = (time: string) => time.slice(0, 5)
+
+const toAgendaFilter = (discipline: string) =>
+  discipline
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+
+const createEmptyAgendaRow = (from: string, to: string): AgendaRow => ({
+  from,
+  to,
+  sessions: Array.from({ length: agendaDays.length }, () => null),
+})
+
+const buildAgendaFromSchedule = (schedule: DbScheduleRow[]): AgendaRow[] => {
+  const rows = new Map<string, AgendaRow>()
+
+  schedule.forEach((slot) => {
+    const dayIndex = dbDayToAgendaIndex[slot.day_name]
+
+    if (dayIndex === undefined || !slot.coaches) {
+      return
+    }
+
+    const from = normalizeTime(slot.start_time)
+    const to = normalizeTime(slot.end_time)
+    const key = `${from}-${to}`
+    const row = rows.get(key) ?? createEmptyAgendaRow(from, to)
+
+    row.sessions[dayIndex] = agendaSession(
+      slot.coaches.name,
+      slot.class_name,
+      `${slot.duration_minutes} min`,
+      toAgendaFilter(slot.class_name),
+    )
+    rows.set(key, row)
+  })
+
+  return Array.from(rows.values()).sort((left, right) => left.from.localeCompare(right.from) || left.to.localeCompare(right.to))
+}
+
+const buildCoachesFromSchedule = (schedule: DbScheduleRow[]): EditableCoach[] => {
+  const coaches = new Map<string, EditableCoach>()
+
+  schedule.forEach((slot) => {
+    if (!slot.coaches) {
+      return
+    }
+
+    const coach = coaches.get(slot.coaches.name) ?? {
+      id: toAgendaFilter(slot.coaches.name),
+      name: slot.coaches.name,
+      title: slot.coaches.speciality,
+      image: slot.coaches.image_url,
+      phone: slot.coaches.phone || '+216 ',
+      email: slot.coaches.email || 'coach@samuraigym.tn',
+      schedule: [],
+    }
+
+    coach.schedule.push({
+      day: slot.day_name,
+      from: normalizeTime(slot.start_time),
+      to: normalizeTime(slot.end_time),
+      role: slot.class_name,
+    })
+    coaches.set(slot.coaches.name, coach)
+  })
+
+  return Array.from(coaches.values())
+}
 
 const plans = [
   {
@@ -670,6 +926,9 @@ function App() {
   const [selectedCoach, setSelectedCoach] = useState<EditableCoach | null>(null)
   const [adminView, setAdminView] = useState<'site' | 'verify' | 'admin'>(() => (window.location.hash === '#coach-admin' ? 'verify' : 'site'))
   const [saveMessage, setSaveMessage] = useState('')
+  const [activeAgendaFilters, setActiveAgendaFilters] = useState<string[]>([])
+  const [agendaRows, setAgendaRows] = useState<AgendaRow[]>(weeklyAgenda)
+  const [agendaMode, setAgendaMode] = useState<'fallback' | 'database'>('fallback')
   const [stats, setStats] = useState({ members: 0, days: 0, motivation: 0 })
   const [scrollProgress, setScrollProgress] = useState(0)
   const { register, handleSubmit, reset } = useForm<ContactForm>()
@@ -687,6 +946,17 @@ function App() {
     const nextLanguage = isFrench ? 'en' : 'fr'
     i18n.changeLanguage(nextLanguage)
     localStorage.setItem('samurai-language', nextLanguage)
+  }
+
+  const toggleAgendaFilter = (filter: string) => {
+    if (filter === 'all') {
+      setActiveAgendaFilters([])
+      return
+    }
+
+    setActiveAgendaFilters((current) =>
+      current.includes(filter) ? current.filter((item) => item !== filter) : [...current, filter],
+    )
   }
 
   const openAdminVerification = () => {
@@ -707,6 +977,43 @@ function App() {
     setSaveMessage('Saved. The coach cards and agendas are updated.')
     window.setTimeout(() => setSaveMessage(''), 2600)
   }
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) {
+      return
+    }
+
+    let isMounted = true
+    const database = supabase
+
+    const loadDatabaseSchedule = async () => {
+      const { data, error } = await database
+        .from('coach_schedule')
+        .select('day_name, start_time, end_time, class_name, duration_minutes, coaches(name, speciality, image_url, phone, email)')
+        .order('start_time', { ascending: true })
+
+      if (error) {
+        console.warn('Could not load coach schedule from Supabase:', error.message)
+        return
+      }
+
+      const schedule = (data ?? []) as unknown as DbScheduleRow[]
+
+      if (!isMounted || schedule.length === 0) {
+        return
+      }
+
+      setAgendaRows(buildAgendaFromSchedule(schedule))
+      setCoachProfiles(buildCoachesFromSchedule(schedule))
+      setAgendaMode('database')
+    }
+
+    loadDatabaseSchedule()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   useEffect(() => {
     const context = gsap.context(() => {
@@ -972,23 +1279,82 @@ function App() {
           </div>
         </section>
 
-        <section className="section">
-          <SectionHeader eyebrow={t('why.eyebrow')} title={t('why.title')} text={t('why.text')} />
-          <div className="timeline mx-auto mt-16 max-w-6xl px-5 lg:px-8">
-            {reasons.map(({ icon, key }, index) => {
-              const copy = t(`why.items.${key}`, { returnObjects: true }) as string[]
+        <section className="section weekly-planner-section">
+          <div className="planning-shell mx-auto max-w-7xl px-5 lg:px-8">
+            <div className="planning-title reveal">
+              <span>Planning</span>
+              <h2>Planning d'entraînement</h2>
+              <p>
+                Agenda complet de la semaine, avec les horaires, coachs, disciplines, et durées de chaque cours.
+                <span className="planning-source"> Source: {agendaMode === 'database' ? 'database live' : 'local fallback'}</span>
+              </p>
+            </div>
 
-              return (
-              <div key={key} className="timeline-item scroll-reveal">
-                <div className="timeline-index">{String(index + 1).padStart(2, '0')}</div>
-                <img className="timeline-icon" src={icon} alt="" loading="lazy" />
-                <div>
-                  <h3>{copy[0]}</h3>
-                  <p>{copy[1]}</p>
-                </div>
-              </div>
-              )
-            })}
+            <div className="planning-legend scroll-reveal" aria-label="Filtrer le planning par discipline">
+              {agendaFilters.map((filter) => {
+                const isActive = filter.value === 'all' ? activeAgendaFilters.length === 0 : activeAgendaFilters.includes(filter.value)
+
+                return (
+                  <button
+                    key={filter.value}
+                    type="button"
+                    className="planning-chip"
+                    data-filter={filter.value}
+                    aria-pressed={isActive}
+                    onClick={() => toggleAgendaFilter(filter.value)}
+                  >
+                    <span aria-hidden="true" />
+                    {filter.label}
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="planning-wrap scroll-reveal">
+              <table className="planning-table">
+                <caption className="sr-only">Planning hebdomadaire des cours Samurai Gym</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Heure</th>
+                    {agendaDays.map((day) => (
+                      <th key={day} scope="col">
+                        {day}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {agendaRows.map((row) => (
+                    <tr key={`${row.from}-${row.to}`}>
+                      <th scope="row" className="planning-time">
+                        <span>{row.from}</span>
+                        <span className="planning-dash">-</span>
+                        <span>{row.to}</span>
+                      </th>
+                      {row.sessions.map((session, sessionIndex) => {
+                        const day = agendaDays[sessionIndex]
+                        const dimmed = Boolean(session && activeAgendaFilters.length > 0 && !activeAgendaFilters.includes(session.filter))
+
+                        return (
+                          <td key={`${row.from}-${day}`} data-day={day} className={session ? undefined : 'planning-empty'}>
+                            {session && (
+                              <article className={`planning-session ${dimmed ? 'is-dim' : ''}`} data-discipline={session.filter}>
+                                <span className="planning-coach">{session.coach}</span>
+                                <h3>{session.discipline}</h3>
+                                <span className="planning-duration">
+                                  <Timer size={11} aria-hidden="true" />
+                                  {session.duration}
+                                </span>
+                              </article>
+                            )}
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 

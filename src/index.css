@@ -782,6 +782,273 @@ img {
   line-height: 1;
 }
 
+.weekly-planner-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.weekly-planner-section::before {
+  content: '';
+  position: absolute;
+  inset: 4rem 0 auto 0;
+  height: 34rem;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(225, 6, 0, 0.22), transparent 31rem),
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 10px);
+  opacity: 0.65;
+}
+
+.planning-shell {
+  position: relative;
+  z-index: 1;
+}
+
+.planning-title {
+  margin-inline: auto;
+  max-width: 54rem;
+  text-align: center;
+}
+
+.planning-title span {
+  color: #d4af37;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.planning-title h2 {
+  margin: 0.2rem 0 0;
+  color: #ffffff;
+  font-family: Anton, Impact, sans-serif;
+  font-size: clamp(3rem, 8vw, 6rem);
+  line-height: 0.92;
+  text-transform: uppercase;
+  text-shadow: 0 0 28px rgba(225, 6, 0, 0.36);
+}
+
+.planning-title p {
+  margin: 1rem auto 0;
+  max-width: 42rem;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.planning-source {
+  display: block;
+  margin-top: 0.35rem;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.planning-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+  margin: 2rem auto 1.4rem;
+}
+
+.planning-chip {
+  display: inline-flex;
+  min-height: 2.35rem;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.34);
+  padding: 0.45rem 0.8rem;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  transition: border-color 180ms ease, background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.planning-chip span {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: #e10600;
+  box-shadow: 0 0 0.8rem rgba(225, 6, 0, 0.45);
+}
+
+.planning-chip:hover,
+.planning-chip[aria-pressed='true'] {
+  border-color: rgba(225, 6, 0, 0.78);
+  background: rgba(225, 6, 0, 0.13);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.planning-chip[data-filter='cardio'] span,
+.planning-chip[data-filter='step'] span,
+.planning-chip[data-filter='tabata'] span {
+  background: #ff5a3c;
+}
+
+.planning-chip[data-filter='abs'] span,
+.planning-chip[data-filter='musculation'] span,
+.planning-chip[data-filter='renforcement'] span {
+  background: #ff9f1c;
+}
+
+.planning-chip[data-filter='cross-training'] span,
+.planning-chip[data-filter='circuit-training'] span {
+  background: #e01e5a;
+}
+
+.planning-wrap {
+  position: relative;
+  overflow-x: auto;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(225, 6, 0, 0.28);
+  background: rgba(0, 0, 0, 0.58);
+  padding: 0.35rem;
+  box-shadow: 0 1.5rem 5rem rgba(0, 0, 0, 0.44), 0 0 3rem rgba(225, 6, 0, 0.14);
+  -webkit-overflow-scrolling: touch;
+}
+
+.planning-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0.25rem;
+  table-layout: fixed;
+}
+
+.planning-table th,
+.planning-table td {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+.planning-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  border-color: rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, #e10600 0%, #8d0710 100%);
+  padding: 0.85rem 0.45rem;
+  color: #ffffff;
+  font-family: Anton, Impact, sans-serif;
+  font-size: 1rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.planning-table thead th:first-child,
+.planning-time {
+  width: 5.6rem;
+}
+
+.planning-time {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #101010;
+  color: #ffffff;
+  font-family: Anton, Impact, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.planning-time span {
+  display: block;
+}
+
+.planning-dash {
+  color: #e10600;
+  line-height: 1;
+}
+
+.planning-table td {
+  height: 7.5rem;
+  background: #050505;
+  padding: 0.2rem;
+  vertical-align: stretch;
+}
+
+.planning-empty {
+  background: #030303;
+}
+
+.planning-session {
+  display: flex;
+  height: 100%;
+  min-height: 6.85rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  border: 1px solid #e10600;
+  border-left: 3px solid #e10600;
+  border-radius: 0.45rem;
+  background: #111111;
+  padding: 0.65rem 0.5rem;
+  text-align: center;
+  transition: opacity 180ms ease, filter 180ms ease, background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.planning-session[data-discipline='cardio'],
+.planning-session[data-discipline='step'],
+.planning-session[data-discipline='tabata'] {
+  border-left-color: #ff5a3c;
+}
+
+.planning-session[data-discipline='abs'],
+.planning-session[data-discipline='musculation'],
+.planning-session[data-discipline='renforcement'] {
+  border-left-color: #ff9f1c;
+}
+
+.planning-session[data-discipline='cross-training'],
+.planning-session[data-discipline='circuit-training'] {
+  border-left-color: #e01e5a;
+}
+
+.planning-session.is-dim {
+  opacity: 0.18;
+  filter: grayscale(1);
+}
+
+.planning-session:hover,
+.planning-session:focus-within {
+  background: #161616;
+  box-shadow: 0 0 0 1px #e10600, 0 0.7rem 1.8rem rgba(225, 6, 0, 0.22);
+  transform: translateY(-2px);
+}
+
+.planning-coach {
+  color: #ffffff;
+  font-family: Allan, Georgia, serif;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.planning-session h3 {
+  margin: 0;
+  color: #e10600;
+  font-family: Anton, Impact, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 900;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.planning-duration {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
 .price-card {
   position: relative;
   overflow: hidden;
@@ -1598,6 +1865,24 @@ img {
     height: 5.25rem;
     padding: 0.45rem;
   }
+
+  .planning-wrap::after {
+    content: '';
+    position: sticky;
+    right: -0.35rem;
+    float: right;
+    display: block;
+    width: 3rem;
+    height: 100%;
+    min-height: 42rem;
+    margin-top: -42rem;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.82));
+  }
+
+  .planning-table {
+    min-width: 56rem;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1636,6 +1921,123 @@ img {
 
   .timeline-item {
     grid-template-columns: 1fr;
+  }
+
+  .planning-title h2 {
+    font-size: clamp(2.8rem, 17vw, 4.8rem);
+  }
+
+  .planning-legend {
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 0.45rem;
+  }
+
+  .planning-chip {
+    flex: 0 0 auto;
+  }
+
+  .planning-wrap {
+    overflow: visible;
+    border-radius: 0;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .planning-wrap::after {
+    display: none;
+  }
+
+  .planning-table,
+  .planning-table thead,
+  .planning-table tbody,
+  .planning-table tr,
+  .planning-table th,
+  .planning-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .planning-table {
+    min-width: 0;
+    border-spacing: 0;
+  }
+
+  .planning-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .planning-table tbody {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .planning-table tr {
+    overflow: hidden;
+    border: 1px solid rgba(225, 6, 0, 0.22);
+    border-radius: 0.85rem;
+    background: #0d0d0d;
+  }
+
+  .planning-time {
+    position: sticky;
+    top: 4.75rem;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid rgba(225, 6, 0, 0.3);
+    background: linear-gradient(180deg, #171717, #0d0d0d);
+    padding: 0.75rem;
+  }
+
+  .planning-time span {
+    display: inline;
+  }
+
+  .planning-table td {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, 0.36fr) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 0.75rem;
+    height: auto;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: transparent;
+    padding: 0.75rem;
+  }
+
+  .planning-table td::before {
+    content: attr(data-day);
+    align-self: center;
+    color: #e10600;
+    font-family: Anton, Impact, sans-serif;
+    font-size: 0.88rem;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .planning-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .planning-table .planning-empty {
+    display: none;
+  }
+
+  .planning-session {
+    min-height: 5.2rem;
   }
 
   .gallery-grid {
