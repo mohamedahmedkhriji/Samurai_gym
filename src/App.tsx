@@ -65,6 +65,7 @@ type EditableCoach = CoachProfile & {
 
 type AgendaSession = {
   coach: string
+  speciality: string
   discipline: string
   duration: string
   filter: string
@@ -158,25 +159,9 @@ const dbDayToAgendaIndex: Record<string, number> = {
   Sunday: 6,
 }
 
-const agendaFilters = [
-  { label: 'Tout', value: 'all' },
-  { label: 'Body Combat', value: 'body-combat' },
-  { label: 'ABS', value: 'abs' },
-  { label: 'Cross Training', value: 'cross-training' },
-  { label: 'Musculation', value: 'musculation' },
-  { label: 'Gymnastique', value: 'gymnastique' },
-  { label: 'Step', value: 'step' },
-  { label: 'Cardio', value: 'cardio' },
-  { label: 'Tabata', value: 'tabata' },
-  { label: 'Kung Fu', value: 'kung-fu' },
-  { label: 'Taekwondo', value: 'taekwondo' },
-  { label: 'Boxe', value: 'boxe' },
-  { label: 'Renforcement', value: 'renforcement' },
-  { label: 'Circuit Training', value: 'circuit-training' },
-]
-
-const agendaSession = (coach: string, discipline: string, duration: string, filter: string): AgendaSession => ({
+const agendaSession = (coach: string, discipline: string, duration: string, filter: string, speciality = 'Coach plateau'): AgendaSession => ({
   coach,
+  speciality,
   discipline,
   duration,
   filter,
@@ -187,13 +172,13 @@ const weeklyAgenda: AgendaRow[] = [
     from: '08:00',
     to: '09:00',
     sessions: [
-      agendaSession('Maha', 'Body Combat', '60 min', 'body-combat'),
+      agendaSession('Maha', 'Body Combat', '60 min', 'maha'),
       null,
-      agendaSession('Maha', 'ABS', '60 min', 'abs'),
+      agendaSession('Maha', 'ABS', '60 min', 'maha'),
       null,
-      agendaSession('Maha', 'Cross Training', '60 min', 'cross-training'),
+      agendaSession('Maha', 'Cross Training', '60 min', 'maha'),
       null,
-      agendaSession('Nourhen', 'Musculation', '60 min', 'musculation'),
+      agendaSession('Nourhen', 'Musculation', '60 min', 'nourhen'),
     ],
   },
   {
@@ -201,23 +186,23 @@ const weeklyAgenda: AgendaRow[] = [
     to: '10:00',
     sessions: [
       null,
-      agendaSession('Nourhen', 'Gymnastique', '60 min', 'gymnastique'),
+      agendaSession('Nourhen', 'Gymnastique', '60 min', 'nourhen'),
       null,
-      agendaSession('Nourhen', 'Gymnastique', '60 min', 'gymnastique'),
+      agendaSession('Nourhen', 'Gymnastique', '60 min', 'nourhen'),
       null,
-      agendaSession('Maha', 'Step', '60 min', 'step'),
-      agendaSession('Nourhen', 'Gymnastique', '60 min', 'gymnastique'),
+      agendaSession('Maha', 'Step', '60 min', 'maha'),
+      agendaSession('Nourhen', 'Gymnastique', '60 min', 'nourhen'),
     ],
   },
   {
     from: '10:00',
     to: '11:00',
     sessions: [
-      agendaSession('Siwar', 'Cardio', '60 min', 'cardio'),
+      agendaSession('Siwar', 'Cardio', '60 min', 'siwar'),
       null,
-      agendaSession('Siwar', 'Step', '60 min', 'step'),
+      agendaSession('Siwar', 'Step', '60 min', 'siwar'),
       null,
-      agendaSession('Siwar', 'Tabata', '60 min', 'tabata'),
+      agendaSession('Siwar', 'Tabata', '60 min', 'siwar'),
       null,
       null,
     ],
@@ -227,23 +212,23 @@ const weeklyAgenda: AgendaRow[] = [
     to: '12:00',
     sessions: [
       null,
-      agendaSession('Nourhen', 'Kung Fu', '90 min', 'kung-fu'),
+      agendaSession('Nourhen', 'Kung Fu', '90 min', 'nourhen'),
       null,
-      agendaSession('Nourhen', 'Kung Fu', '90 min', 'kung-fu'),
+      agendaSession('Nourhen', 'Kung Fu', '90 min', 'nourhen'),
       null,
-      agendaSession('Ahlem', 'Taekwondo', '90 min', 'taekwondo'),
-      agendaSession('Nourhen', 'Kung Fu', '90 min', 'kung-fu'),
+      agendaSession('Ahlem', 'Taekwondo', '90 min', 'ahlem'),
+      agendaSession('Nourhen', 'Kung Fu', '90 min', 'nourhen'),
     ],
   },
   {
     from: '17:00',
     to: '18:00',
     sessions: [
-      agendaSession('Maha', 'Body Combat', '60 min', 'body-combat'),
+      agendaSession('Maha', 'Body Combat', '60 min', 'maha'),
       null,
-      agendaSession('Maha', 'ABS', '60 min', 'abs'),
+      agendaSession('Maha', 'ABS', '60 min', 'maha'),
       null,
-      agendaSession('Nourhen', 'ABS', '60 min', 'abs'),
+      agendaSession('Nourhen', 'ABS', '60 min', 'nourhen'),
       null,
       null,
     ],
@@ -252,7 +237,7 @@ const weeklyAgenda: AgendaRow[] = [
     from: '18:00',
     to: '19:00',
     sessions: [
-      agendaSession('Nourhen', 'Step', '60 min', 'step'),
+      agendaSession('Nourhen', 'Step', '60 min', 'nourhen'),
       null,
       null,
       null,
@@ -266,10 +251,10 @@ const weeklyAgenda: AgendaRow[] = [
     to: '20:00',
     sessions: [
       null,
-      agendaSession('Ahlem', 'Taekwondo', '90 min', 'taekwondo'),
-      agendaSession('Med Jaber', 'Boxe', '90 min', 'boxe'),
-      agendaSession('Ahlem', 'Taekwondo', '90 min', 'taekwondo'),
-      agendaSession('Med Jaber', 'Boxe', '90 min', 'boxe'),
+      agendaSession('Ahlem', 'Taekwondo', '90 min', 'ahlem'),
+      agendaSession('Med Jaber', 'Boxe', '90 min', 'med-jaber'),
+      agendaSession('Ahlem', 'Taekwondo', '90 min', 'ahlem'),
+      agendaSession('Med Jaber', 'Boxe', '90 min', 'med-jaber'),
       null,
       null,
     ],
@@ -278,12 +263,12 @@ const weeklyAgenda: AgendaRow[] = [
     from: '19:00',
     to: '20:00',
     sessions: [
-      agendaSession('Med Jaber', 'Boxe', '60 min', 'boxe'),
+      agendaSession('Med Jaber', 'Boxe', '60 min', 'med-jaber'),
       null,
       null,
       null,
       null,
-      agendaSession('Nourhen', 'Cardio', '60 min', 'cardio'),
+      agendaSession('Nourhen', 'Cardio', '60 min', 'nourhen'),
       null,
     ],
   },
@@ -292,10 +277,10 @@ const weeklyAgenda: AgendaRow[] = [
     to: '21:00',
     sessions: [
       null,
-      agendaSession('Nourhen', 'Renforcement', '60 min', 'renforcement'),
-      agendaSession('Ahmed', 'Cross Training', '60 min', 'cross-training'),
-      agendaSession('Nourhen', 'Circuit Training', '60 min', 'circuit-training'),
-      agendaSession('Ahmed', 'Cross Training', '60 min', 'cross-training'),
+      agendaSession('Nourhen', 'Renforcement', '60 min', 'nourhen'),
+      agendaSession('Ahmed', 'Cross Training', '60 min', 'ahmed'),
+      agendaSession('Nourhen', 'Circuit Training', '60 min', 'nourhen'),
+      agendaSession('Ahmed', 'Cross Training', '60 min', 'ahmed'),
       null,
       null,
     ],
@@ -304,7 +289,7 @@ const weeklyAgenda: AgendaRow[] = [
     from: '20:30',
     to: '21:30',
     sessions: [
-      agendaSession('Ahmed', 'Cross Training', '60 min', 'cross-training'),
+      agendaSession('Ahmed', 'Cross Training', '60 min', 'ahmed'),
       null,
       null,
       null,
@@ -324,6 +309,23 @@ const toAgendaFilter = (discipline: string) =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
+
+const buildCoachFilters = (rows: AgendaRow[]) => [
+  { label: 'Tout', value: 'all' },
+  ...Array.from(
+    rows.reduce((filters, row) => {
+      row.sessions.forEach((session) => {
+        if (session) {
+          filters.set(session.filter, session.coach)
+        }
+      })
+
+      return filters
+    }, new Map<string, string>()),
+  )
+    .map(([value, label]) => ({ value, label }))
+    .sort((left, right) => left.label.localeCompare(right.label)),
+]
 
 const normalizeScheduleDay = (day: string) => {
   const normalized = day.trim().toLowerCase()
@@ -403,7 +405,8 @@ const buildAgendaFromSchedule = (schedule: DbScheduleRow[]): AgendaRow[] => {
       slot.coaches.name,
       slot.class_name,
       `${slot.duration_minutes} min`,
-      toAgendaFilter(slot.class_name),
+      toAgendaFilter(slot.coaches.name),
+      slot.coaches.speciality,
     )
     rows.set(key, row)
   })
@@ -993,6 +996,7 @@ function App() {
   const currentLanguage = i18n.resolvedLanguage || i18n.language
   const isFrench = currentLanguage.startsWith('fr')
   const activeFlag = isFrench ? frFlag : usFlag
+  const agendaCoachFilters = buildCoachFilters(agendaRows)
 
   const changeLanguage = () => {
     const nextLanguage = isFrench ? 'en' : 'fr'
@@ -1452,8 +1456,8 @@ function App() {
               </p>
             </div>
 
-            <div className="planning-legend scroll-reveal" aria-label="Filtrer le planning par discipline">
-              {agendaFilters.map((filter) => {
+            <div className="planning-legend scroll-reveal" aria-label="Filtrer le planning par coach">
+              {agendaCoachFilters.map((filter) => {
                 const isActive = filter.value === 'all' ? activeAgendaFilters.length === 0 : activeAgendaFilters.includes(filter.value)
 
                 return (
@@ -1500,9 +1504,10 @@ function App() {
                         return (
                           <td key={`${row.from}-${day}`} data-day={day} className={session ? undefined : 'planning-empty'}>
                             {session && (
-                              <article className={`planning-session ${dimmed ? 'is-dim' : ''}`} data-discipline={session.filter}>
+                              <article className={`planning-session ${dimmed ? 'is-dim' : ''}`} data-discipline={toAgendaFilter(session.discipline)} data-coach={session.filter}>
                                 <span className="planning-coach">{session.coach}</span>
                                 <h3>{session.discipline}</h3>
+                                <span className="planning-speciality">{session.speciality}</span>
                                 <span className="planning-duration">
                                   <Timer size={11} aria-hidden="true" />
                                   {session.duration}
@@ -1671,3 +1676,4 @@ function App() {
 }
 
 export default App
+
